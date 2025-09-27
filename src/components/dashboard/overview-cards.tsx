@@ -1,3 +1,4 @@
+
 'use client';
 import {
   Card,
@@ -8,6 +9,7 @@ import {
 import { Wallet, TrendingUp, Package } from 'lucide-react';
 import { user } from '@/lib/data';
 import { WithdrawalDialog } from './withdrawal-dialog';
+import { useCountUp } from '@/hooks/use-count-up';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-IN', {
@@ -17,6 +19,10 @@ const formatCurrency = (amount: number) => {
 };
 
 export function OverviewCards() {
+  const walletBalance = useCountUp(user.walletBalance);
+  const totalProfits = useCountUp(user.totalProfits);
+  const activePackages = useCountUp(user.activePackagesCount);
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <Card>
@@ -26,7 +32,7 @@ export function OverviewCards() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {formatCurrency(user.walletBalance)}
+            {formatCurrency(walletBalance)}
           </div>
           <div className="mt-4 flex items-center gap-2">
             <WithdrawalDialog />
@@ -40,7 +46,7 @@ export function OverviewCards() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-accent-foreground">
-            {formatCurrency(user.totalProfits)}
+            {formatCurrency(totalProfits)}
           </div>
           <p className="text-xs text-muted-foreground">+20.1% from last month</p>
         </CardContent>
@@ -53,7 +59,7 @@ export function OverviewCards() {
           <Package className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{user.activePackagesCount}</div>
+          <div className="text-2xl font-bold">{activePackages}</div>
           <p className="text-xs text-muted-foreground">+1 since last week</p>
         </CardContent>
       </Card>
