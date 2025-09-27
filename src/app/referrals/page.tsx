@@ -1,13 +1,11 @@
+'use client';
+
 import { Header } from '@/components/header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Copy } from 'lucide-react';
 import { ReferralForm } from '@/components/referrals/referral-form';
-
-// This is a client component because of the copy to clipboard functionality
-'use client';
-
 import { useToast } from '@/hooks/use-toast';
 
 export default function ReferralsPage() {
