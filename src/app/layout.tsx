@@ -62,6 +62,9 @@ export default function RootLayout({
             <main className="flex-1 flex flex-col">
               {children}
             </main>
+            <footer className="p-4 text-center text-sm text-muted-foreground">
+              all right reserved by nyrexDeveloper
+            </footer>
           </SidebarInset>
         </SidebarProvider>
         <Toaster />
