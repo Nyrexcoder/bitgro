@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function ReferralsPage() {
   const { toast } = useToast();
-  const referralLink = 'https://smartvest.app/join?ref=user123';
+  const referralLink = 'https://bitgro.app/join?ref=user123';
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(referralLink);
