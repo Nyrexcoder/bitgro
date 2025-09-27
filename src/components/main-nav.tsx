@@ -12,8 +12,8 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  useSidebar,
 } from '@/components/ui/sidebar';
-import { cn } from '@/lib/utils';
 
 const links = [
   {
@@ -40,6 +40,7 @@ const links = [
 
 export function MainNav() {
   const pathname = usePathname();
+  const { setOpenMobile } = useSidebar();
 
   return (
     <SidebarMenu>
@@ -50,6 +51,7 @@ export function MainNav() {
               isActive={pathname === link.href}
               className="w-full"
               asChild
+              onClick={() => setOpenMobile(false)}
             >
               <span>
                 <link.icon className="mr-2 h-4 w-4" />
