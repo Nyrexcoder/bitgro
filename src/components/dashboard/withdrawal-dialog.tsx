@@ -44,6 +44,13 @@ const withdrawalSchema = z.object({
 
 type WithdrawalFormValues = z.infer<typeof withdrawalSchema>;
 
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+  }).format(amount);
+};
+
 export function WithdrawalDialog() {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -76,7 +83,7 @@ export function WithdrawalDialog() {
       if (!result.isFraudulent) {
         toast({
           title: 'Withdrawal Submitted',
-          description: `Your request to withdraw $${values.amount} has been processed.`,
+          description: `Your request to withdraw ${formatCurrency(values.amount)} has been processed.`,
         });
         // In a real app, you would close the dialog after a successful non-fraudulent transaction
         // setOpen(false);
@@ -122,7 +129,7 @@ export function WithdrawalDialog() {
                 Available Balance:
                 <span className="font-medium text-foreground">
                   {' '}
-                  ${user.walletBalance.toFixed(2)}
+                  {formatCurrency(user.walletBalance)}
                 </span>
               </p>
               <FormField
@@ -130,7 +137,7 @@ export function WithdrawalDialog() {
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Amount</FormLabel>
+                    <FormLabel>Amount (₹)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"

@@ -131,7 +131,7 @@ export function ReferralForm() {
                   <FormItem>
                     <FormLabel>System Conditions</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
+                      onValuechange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
@@ -171,7 +171,7 @@ export function ReferralForm() {
                 name="totalInvestment"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Referred User Investment ($)</FormLabel>
+                    <FormLabel>Referred User Investment (₹)</FormLabel>
                     <FormControl>
                       <Input type="number" step="100" {...field} />
                     </FormControl>

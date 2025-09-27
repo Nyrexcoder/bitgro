@@ -13,9 +13,9 @@ interface PackageCardProps {
 }
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
   }).format(amount);
 };
 
@@ -36,9 +36,8 @@ export function PackageCard({ packageInfo }: PackageCardProps) {
           <Image
             src={packageInfo.image}
             alt={packageInfo.name}
-            layout="fill"
-            objectFit="cover"
-            className="rounded-t-lg"
+            fill
+            className="rounded-t-lg object-cover"
             data-ai-hint={packageInfo.imageHint}
           />
         </div>

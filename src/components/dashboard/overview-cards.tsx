@@ -1,18 +1,18 @@
+'use client';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Wallet, TrendingUp, Package, ArrowDownToLine } from 'lucide-react';
+import { Wallet, TrendingUp, Package } from 'lucide-react';
 import { user } from '@/lib/data';
-import { Button } from '@/components/ui/button';
 import { WithdrawalDialog } from './withdrawal-dialog';
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
   }).format(amount);
 };
 
