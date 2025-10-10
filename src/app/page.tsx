@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import Image from 'next/image';
-import { CheckCircle2, TrendingUp, Users, Lock } from 'lucide-react';
+import { CheckCircle2, TrendingUp, Users, Lock, ArrowRight } from 'lucide-react';
 import { packages } from '@/lib/data';
 import { PackageCard } from '@/components/packages/package-card';
 
@@ -35,32 +35,39 @@ export default function LandingPage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="py-20 md:py-32 animate-fade-in">
-          <div className="container text-center">
-            <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
-              Smart Investments, Simplified.
+        <section className="relative py-20 md:py-32 animate-fade-in">
+            <div
+                aria-hidden="true"
+                className="absolute inset-0 top-0 z-0 h-full w-full bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,hsl(var(--primary)/0.1),rgba(255,255,255,0))]"
+            ></div>
+          <div className="container relative z-10 text-center">
+            <h1 className="text-5xl font-extrabold tracking-tighter lg:text-6xl">
+              Smart Investments, <span className="text-primary">Simplified.</span>
             </h1>
-            <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
+            <p className="mt-6 max-w-2xl mx-auto text-lg text-muted-foreground">
               bitgro is your trusted partner for navigating the world of modern
               investments. Grow your wealth with our expert-managed packages.
             </p>
             <div className="mt-8 flex justify-center gap-4">
               <Button size="lg" asChild>
-                <Link href="/signup">Start Investing Now</Link>
+                <Link href="/signup">Start Investing Now <ArrowRight className="ml-2" /></Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
                 <Link href="#packages">Explore Packages</Link>
               </Button>
             </div>
-            <div className="mt-16">
-                 <Image 
-                    src="https://picsum.photos/seed/herodashboard/1200/600"
-                    alt="Dashboard preview"
-                    width={1200}
-                    height={600}
-                    className="rounded-lg shadow-lg mx-auto"
-                    data-ai-hint="dashboard financial"
-                  />
+            <div className="mt-16 group">
+                <div className="relative">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-primary/50 to-accent/50 rounded-lg blur-xl opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+                    <Image 
+                        src="https://picsum.photos/seed/herodashboard/1200/600"
+                        alt="Dashboard preview"
+                        width={1200}
+                        height={600}
+                        className="rounded-lg shadow-2xl mx-auto relative transform group-hover:scale-105 transition-transform duration-300"
+                        data-ai-hint="dashboard financial"
+                    />
+                 </div>
             </div>
           </div>
         </section>
@@ -263,7 +270,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-    
-
-    
