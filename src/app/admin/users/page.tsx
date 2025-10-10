@@ -167,7 +167,7 @@ function AdminUsersPageSkeleton() {
 }
 
 function AdminUsersPageContent({ initialAdminProfile }: { initialAdminProfile: User }) {
-    const [users, setUsers] = useState<User[]>([initialAdminProfile]);
+    const [users, setUsers] = useState<User[]>([]);
     const [isLoadingUsers, setIsLoadingUsers] = useState(true);
     const { toast } = useToast();
     const firestore = useFirestore();
@@ -175,6 +175,7 @@ function AdminUsersPageContent({ initialAdminProfile }: { initialAdminProfile: U
     // Fetch all users on initial load
     useEffect(() => {
         const fetchUsers = async () => {
+            setIsLoadingUsers(true);
             try {
                 // In a secure app, this would be a call to a Cloud Function
                 // For demonstration, we'll use a less secure direct query
@@ -189,7 +190,7 @@ function AdminUsersPageContent({ initialAdminProfile }: { initialAdminProfile: U
                     title: "Failed to load all users",
                     description: "For demonstration, this direct query is blocked by security rules. Only your profile is shown."
                 });
-                // If fetching all users fails, we already have the admin profile initialized.
+                // If fetching all users fails, initialize with just the admin's profile.
                 setUsers([initialAdminProfile]);
             } finally {
                 setIsLoadingUsers(false);
@@ -390,7 +391,7 @@ export default function ManageUsersPage() {
       // If there's no authenticated user, or the loaded profile is not an admin, redirect.
       if (!authUser || !userProfile?.isAdmin) {
         // console.log('[Debug] User is not admin. Redirecting to /dashboard.');
-        // router.push('/dashboard');
+        router.push('/dashboard');
       } else {
         // console.log('[Debug] User is admin. Not redirecting.');
       }
@@ -412,3 +413,5 @@ export default function ManageUsersPage() {
   // show skeleton while the redirection in useEffect happens.
   return <AdminUsersPageSkeleton />;
 }
+
+    
