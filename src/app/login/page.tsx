@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -111,6 +111,11 @@ export default function LoginPage() {
             </Link>
           </div>
         </CardContent>
+        <CardFooter className="flex flex-col items-start text-xs text-muted-foreground pt-4 border-t">
+            <p className="font-semibold">Admin Credentials:</p>
+            <p>Email: admin@bitgro.app</p>
+            <p>Password: password</p>
+        </CardFooter>
       </Card>
     </div>
   );

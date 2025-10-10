@@ -267,9 +267,8 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-          <div className="mt-8 border-t pt-8 flex flex-col sm:flex-row justify-between items-center text-sm text-muted-foreground">
+          <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
             <p>&copy; {new Date().getFullYear()} bitgro. All rights reserved by nyrexDeveloper.</p>
-             <p className="mt-4 sm:mt-0">Admin Login: admin@bitgro.app / password</p>
           </div>
         </div>
       </footer>
