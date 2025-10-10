@@ -3,10 +3,10 @@
 
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useMemoFirebase } from '@/firebase/provider';
-import { collection, query, doc } from 'firebase/firestore';
-import { useCollection, useDoc, useFirestore, useUser } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import { useDoc, useFirestore, useUser } from '@/firebase';
 import { Header } from '@/components/header';
 import {
   Table,
@@ -44,21 +44,22 @@ export default function ManageUsersPage() {
   }, [firestore, authUser]);
 
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<User>(userDocRef);
+  const isLoading = isAuthUserLoading || isProfileLoading;
+  const isAdmin = userProfile?.isAdmin === true;
 
   // This is a placeholder. In a real-world secure app, you would fetch users
   // via a Cloud Function, not a direct client-side query.
   // For now, we only show the current admin to avoid security rule violations.
   const users = userProfile ? [userProfile] : [];
-  const usersLoading = isProfileLoading;
 
-
-  const isAdmin = userProfile?.isAdmin === true;
-  const isLoading = isAuthUserLoading || isProfileLoading;
 
   useEffect(() => {
-    // Wait until loading is complete before checking for admin status
-    if (!isLoading && !isAdmin) {
-      router.push('/dashboard');
+    // Only perform the check once loading is complete.
+    if (!isLoading) {
+      // If loading is complete and the user is not an admin, then redirect.
+      if (!isAdmin) {
+        router.push('/dashboard');
+      }
     }
   }, [isLoading, isAdmin, router]);
 
@@ -115,12 +116,14 @@ export default function ManageUsersPage() {
       )
   }
 
+  // If loading is finished and the user is NOT an admin, the useEffect will have already
+  // initiated the redirect. We return null here to prevent flashing the admin content
+  // to a non-admin user during the brief moment before the redirect completes.
   if (!isAdmin) {
-    // If not an admin, the useEffect will handle redirection.
-    // Return null or a loading indicator to prevent rendering the page content for non-admins.
     return null;
   }
 
+  // If loading is finished AND the user IS an admin, render the page.
   return (
     <div className="flex-1 flex flex-col">
       <Header title="Manage Users">
