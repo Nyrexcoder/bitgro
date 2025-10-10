@@ -1,212 +1,231 @@
 /**
  * @file Firestore Security Rules for SmartVest Platform
- * @version Prototyping Mode - Authorization Focused
- *
- * @description
- * This ruleset enforces a strict user-ownership model for personal data while providing public read access to investment packages.
- * It leverages the `isAdmin` field in user documents for admin-level access control.
- *
- * Data Structure:
- * - /users/{userId}: Stores user profiles, with the `isAdmin` field indicating admin status.
- * - /packages/{packageId}: Stores investment packages; publicly readable, but only writable by admins.
- * - /users/{userId}/userPackages/{userPackageId}: Stores the association between users and their purchased packages.
- * - /users/{userId}/wallets/{walletId}: Stores user wallets, accessible only by the owning user.
- * - /users/{userId}/wallets/{walletId}/transactions/{transactionId}: Stores transaction history for a user's wallet.
- * - /users/{userId}/withdrawalRequests/{withdrawalRequestId}: Stores user withdrawal requests.
- *
- * Key Security Decisions:
- * - Strict user ownership: Most data is secured under /users/{userId}, enforcing that only the authenticated user can access their own data.
- * - Admin Role: The `isAdmin` field in the `/users/{userId}` document determines administrative privileges.
- * - Public Packages: The /packages collection is publicly readable to allow all users to view available investment options.
- * - No user listing: Listing all users is explicitly denied to prevent information leakage.
- *
- * Denormalization for Authorization:
- * - The `isAdmin` field is embedded directly in the `/users/{userId}` document to avoid costly `get()` calls for role verification.
- * - UserPackage documents include `userId` for direct ownership reference, avoiding traversal to the `users` collection to determine package ownership.
- *
- * Structural Segregation:
- * - Publicly readable package information is stored separately from private user data, allowing for simple and performant read rules on the /packages collection.
+ * @corePhilosophy This ruleset enforces a strict user-ownership model for personal data while allowing public read access to investment packages. Administrative privileges are controlled via the `isAdmin` field on user documents.
+ * @dataStructure
+ *   - /users/{userId}: User profiles, including an `isAdmin` flag.
+ *   - /packages/{packageId}: Investment packages (publicly readable).
+ *   - /users/{userId}/userPackages/{userPackageId}: Packages purchased by a user.
+ *   - /users/{userId}/wallets/{walletId}: User's wallet.
+ *   - /users/{userId}/wallets/{walletId}/transactions/{transactionId}: Transactions for a specific wallet.
+ *   - /users/{userId}/withdrawalRequests/{withdrawalRequestId}: Withdrawal requests made by a user.
+ * @keySecurityDecisions
+ *   - Users cannot list all users. Only individual user documents are accessible.
+ *   - Packages are publicly readable but only writable by admins (controlled via the `isAdmin` flag in user documents).
+ *   - All user-owned data is nested under the /users/{userId} path to enforce ownership.
+ *   - Read-only collections are not used in this version.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Enforces user-ownership for user profiles. Admins can also manage user profiles.
+     * @description Controls access to user profiles.
      * @path /users/{userId}
-     * @allow (create) - User with ID 'user_abc' creates their profile: request.auth.uid == 'user_abc'
-     * @allow (get, update, delete) - Admin with isAdmin == true gets, updates or deletes user profile
-     * @allow (get, update, delete) - User with ID 'user_abc' gets, updates, or deletes their profile: request.auth.uid == 'user_abc'
-     * @deny (create) - User with ID 'user_xyz' tries to create profile for 'user_abc': request.auth.uid != 'user_abc'
-     * @deny (update, delete) - User with ID 'user_xyz' tries to update/delete profile for 'user_abc': request.auth.uid != 'user_abc' and user_xyz is not an admin.
-     * @deny (list) - Prevents listing all users.
-     * @principle Enforces document ownership for writes and prevents unauthorized access.
+     * @allow (get) Authenticated user can read their own profile.
+     * @allow (create) Authenticated user can create their own profile, but only if the userId matches their auth.uid.
+     * @allow (update) Authenticated user can update their own profile, but only if they own it.
+     * @allow (delete) Authenticated user can delete their own profile, but only if they own it.
+     * @deny (get) Authenticated user cannot read another user's profile.
+     * @deny (list) No one can list all users.
+     * @deny (create) An unauthenticated user cannot create a profile.
+     * @deny (update) Authenticated user cannot update another user's profile.
+     * @deny (delete) Authenticated user cannot delete another user's profile.
+     * @principle Enforces document ownership for writes.
      */
     match /users/{userId} {
+      // Helper function to check if the user is signed in
       function isSignedIn() {
         return request.auth != null;
       }
 
+      // Helper function to check if the user is the owner of the document
       function isOwner(userId) {
         return request.auth.uid == userId;
       }
 
-      function isAdmin() {
-        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
-      }
-
+      // Helper function to check if the user is the existing owner of the document
       function isExistingOwner(userId) {
-          return isOwner(userId) && resource != null;
+        return isOwner(userId) && resource != null;
       }
-
-      allow get: if isSignedIn() && (isOwner(userId) || isAdmin());
+      
+      allow get: if isSignedIn() && isOwner(userId);
       allow list: if false;
-      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isSignedIn() && (isExistingOwner(userId) || isAdmin()) && request.resource.data.id == resource.data.id;
-      allow delete: if isSignedIn() && (isExistingOwner(userId) || isAdmin());
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Allows public read access to investment packages, but restricts write access to admins only.
+     * @description Controls access to investment packages.
      * @path /packages/{packageId}
-     * @allow (get, list) - Any user can read package details.
-     * @allow (create, update, delete) - Admin user can create, update, or delete packages.
-     * @deny (create, update, delete) - Non-admin user attempts to create, update, or delete packages.
-     * @principle Provides public read access with admin-controlled writes.
+     * @allow (get) Any user can read a package.
+     * @allow (list) Any user can list packages.
+     * @allow (create) Only admins can create packages.
+     * @allow (update) Only admins can update packages.
+     * @allow (delete) Only admins can delete packages.
+     * @deny (create) A non-admin user cannot create a package.
+     * @deny (update) A non-admin user cannot update a package.
+     * @deny (delete) A non-admin user cannot delete a package.
+     * @principle Allows public read access with admin-only writes.
      */
     match /packages/{packageId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
+      // Helper function to check if the user is an admin
       function isAdmin() {
         return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
       }
 
-      allow get, list: if true;
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      allow get: if true;
+      allow list: if true;
       allow create: if isAdmin();
-      allow update: if isAdmin() && resource != null;
-      allow delete: if isAdmin() && resource != null;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
 
     /**
-     * @description Enforces user-ownership for user packages.
+     * @description Controls access to user-specific packages.
      * @path /users/{userId}/userPackages/{userPackageId}
-     * @allow (create) - User 'user_abc' creates a user package under their ID: request.auth.uid == 'user_abc'
-     * @allow (get, list, update, delete) - User 'user_abc' gets, lists, updates, or deletes their own user packages: request.auth.uid == 'user_abc'
-     * @deny (create) - User 'user_xyz' tries to create a user package under 'user_abc': request.auth.uid != 'user_abc'
-     * @deny (get, list, update, delete) - User 'user_xyz' tries to get, list, update, or delete user packages under 'user_abc': request.auth.uid != 'user_abc'
-     * @principle Enforces document ownership for writes and prevents unauthorized access.
+     * @allow (get) The owner can get their user package.
+     * @allow (list) The owner can list their user packages.
+     * @allow (create) The owner can create user package, but only if the userId matches their auth.uid.
+     * @allow (update) The owner can update their user package, but only if they own it.
+     * @allow (delete) The owner can delete their user package, but only if they own it.
+     * @deny (get) Another user cannot read this user package.
+     * @deny (create) An unauthenticated user cannot create a user package.
+     * @deny (update) Another user cannot update this user package.
+     * @deny (delete) Another user cannot delete this user package.
+     * @principle Enforces document ownership for writes within a user's data tree.
      */
     match /users/{userId}/userPackages/{userPackageId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
+      // Reuse the isOwner function from the /users/{userId} match
       function isOwner(userId) {
         return request.auth.uid == userId;
       }
 
-      function isExistingOwner(userId) {
-          return isOwner(userId) && resource != null;
+      function isSignedIn() {
+        return request.auth != null;
       }
 
-      allow get, list: if isSignedIn() && isOwner(userId);
-      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isSignedIn() && isExistingOwner(userId) && request.resource.data.userId == userId;
-      allow delete: if isSignedIn() && isExistingOwner(userId);
+     // Helper function to check if the user is the existing owner of the document
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Enforces user-ownership for wallets.
+     * @description Controls access to user wallets.
      * @path /users/{userId}/wallets/{walletId}
-     * @allow (create) - User 'user_abc' creates a wallet under their ID: request.auth.uid == 'user_abc'
-     * @allow (get, list, update, delete) - User 'user_abc' gets, lists, updates, or deletes their own wallet: request.auth.uid == 'user_abc'
-     * @deny (create) - User 'user_xyz' tries to create a wallet under 'user_abc': request.auth.uid != 'user_abc'
-     * @deny (get, list, update, delete) - User 'user_xyz' tries to get, list, update, or delete wallet under 'user_abc': request.auth.uid != 'user_abc'
-     * @principle Enforces document ownership for writes and prevents unauthorized access.
+     * @allow (get) The owner can get their wallet.
+     * @allow (list) The owner can list their wallets.
+     * @allow (create) The owner can create a wallet, but only if the userId matches their auth.uid.
+     * @allow (update) The owner can update their wallet, but only if they own it.
+     * @allow (delete) The owner can delete their wallet, but only if they own it.
+     * @deny (get) Another user cannot read this wallet.
+     * @deny (create) An unauthenticated user cannot create a wallet.
+     * @deny (update) Another user cannot update this wallet.
+     * @deny (delete) Another user cannot delete this wallet.
+     * @principle Enforces document ownership for writes within a user's data tree.
      */
     match /users/{userId}/wallets/{walletId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
+      // Reuse the isOwner function from the /users/{userId} match
       function isOwner(userId) {
         return request.auth.uid == userId;
       }
 
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      // Helper function to check if the user is the existing owner of the document
       function isExistingOwner(userId) {
-          return isOwner(userId) && resource != null;
+        return isOwner(userId) && resource != null;
       }
 
       allow get: if isSignedIn() && isOwner(userId);
       allow list: if isSignedIn() && isOwner(userId);
       allow create: if isSignedIn() && isOwner(userId);
-      allow update: if isSignedIn() && isExistingOwner(userId);
-      allow delete: if isSignedIn() && isExistingOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Enforces user-ownership for transactions.
+     * @description Controls access to transactions within a user's wallet.
      * @path /users/{userId}/wallets/{walletId}/transactions/{transactionId}
-     * @allow (create) - User 'user_abc' creates a transaction under their wallet: request.auth.uid == 'user_abc'
-     * @allow (get, list, update, delete) - User 'user_abc' gets, lists, updates, or deletes their own transactions: request.auth.uid == 'user_abc'
-     * @deny (create) - User 'user_xyz' tries to create a transaction under 'user_abc''s wallet: request.auth.uid != 'user_abc'
-     * @deny (get, list, update, delete) - User 'user_xyz' tries to get, list, update, or delete transactions under 'user_abc''s wallet: request.auth.uid != 'user_abc'
-     * @principle Enforces document ownership for writes and prevents unauthorized access.
+     * @allow (get) The owner can get their transaction.
+     * @allow (list) The owner can list their transactions.
+     * @allow (create) The owner can create transaction, but only if the wallet is owned by the user.
+     * @allow (update) The owner can update their transaction, but only if they own it.
+     * @allow (delete) The owner can delete their transaction, but only if they own it.
+     * @deny (get) Another user cannot read this transaction.
+     * @deny (create) An unauthenticated user cannot create a transaction.
+     * @deny (update) Another user cannot update this transaction.
+     * @deny (delete) Another user cannot delete this transaction.
+     * @principle Enforces document ownership for writes within a user's data tree.
      */
     match /users/{userId}/wallets/{walletId}/transactions/{transactionId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
+      // Reuse the isOwner function from the /users/{userId} match
       function isOwner(userId) {
         return request.auth.uid == userId;
       }
 
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      // Helper function to check if the user is the existing owner of the document
       function isExistingOwner(userId) {
-          return isOwner(userId) && resource != null;
+        return isOwner(userId) && resource != null;
       }
 
       allow get: if isSignedIn() && isOwner(userId);
       allow list: if isSignedIn() && isOwner(userId);
       allow create: if isSignedIn() && isOwner(userId);
-      allow update: if isSignedIn() && isExistingOwner(userId);
-      allow delete: if isSignedIn() && isExistingOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Enforces user-ownership for withdrawal requests.
+     * @description Controls access to withdrawal requests.
      * @path /users/{userId}/withdrawalRequests/{withdrawalRequestId}
-     * @allow (create) - User 'user_abc' creates a withdrawal request under their ID: request.auth.uid == 'user_abc'
-     * @allow (get, list) - User 'user_abc' gets or lists their withdrawal requests: request.auth.uid == 'user_abc'
-     * @allow (update, delete) - Admin can update or delete any withdrawal request.
-     * @deny (create) - User 'user_xyz' tries to create a withdrawal request under 'user_abc': request.auth.uid != 'user_abc'
-     * @deny (get, list) - User 'user_xyz' tries to get or list withdrawal requests under 'user_abc': request.auth.uid != 'user_abc'
-     * @deny (update, delete) - User 'user_xyz' who is not admin tries to update or delete any withdrawal request.
-     * @principle Enforces document ownership for writes and prevents unauthorized access, admin can manage all withdrawal requests.
+     * @allow (get) The owner can get their withdrawal request.
+     * @allow (list) The owner can list their withdrawal requests.
+     * @allow (create) The owner can create a withdrawal request, but only if the userId matches their auth.uid.
+     * @allow (update) The owner can update their withdrawal request, but only if they own it.
+     * @allow (delete) The owner can delete their withdrawal request, but only if they own it.
+     * @deny (get) Another user cannot read this withdrawal request.
+     * @deny (create) An unauthenticated user cannot create a withdrawal request.
+     * @deny (update) Another user cannot update this withdrawal request.
+     * @deny (delete) Another user cannot delete this withdrawal request.
+     * @principle Enforces document ownership for writes within a user's data tree.
      */
     match /users/{userId}/withdrawalRequests/{withdrawalRequestId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
+      // Reuse the isOwner function from the /users/{userId} match
       function isOwner(userId) {
         return request.auth.uid == userId;
       }
 
-      function isAdmin() {
-        return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      function isSignedIn() {
+        return request.auth != null;
       }
 
+      // Helper function to check if the user is the existing owner of the document
       function isExistingOwner(userId) {
-          return isOwner(userId) && resource != null;
+        return isOwner(userId) && resource != null;
       }
-
-      allow get, list: if isSignedIn() && (isOwner(userId) || isAdmin());
-      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isSignedIn() && (isExistingOwner(userId) || isAdmin());
-      allow delete: if isSignedIn() && (isExistingOwner(userId) || isAdmin());
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
     }
   }
 }

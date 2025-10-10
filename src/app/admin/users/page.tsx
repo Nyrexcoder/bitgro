@@ -3,8 +3,8 @@
 'use client';
 
 import { useMemoFirebase } from '@/firebase/provider';
-import { collection, query } from 'firebase/firestore';
-import { useCollection, useFirestore, useUser } from '@/firebase';
+import { collection, query, doc } from 'firebase/firestore';
+import { useCollection, useDoc, useFirestore, useUser } from '@/firebase';
 import { Header } from '@/components/header';
 import {
   Table,
@@ -34,6 +34,13 @@ export default function ManageUsersPage() {
   const { user: authUser, isUserLoading } = useUser();
   const router = useRouter();
 
+  const userDocRef = useMemoFirebase(() => {
+    if (!firestore || !authUser) return null;
+    return doc(firestore, 'users', authUser.uid);
+  }, [firestore, authUser]);
+
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<User>(userDocRef);
+
   const usersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'users'));
@@ -41,16 +48,15 @@ export default function ManageUsersPage() {
 
   const { data: users, isLoading: usersLoading } = useCollection<User>(usersQuery);
 
-  // A real app would get user roles from the user object
-  const isAdmin = authUser && !authUser.isAnonymous; // For now, we assume any logged in user is admin.
+  const isAdmin = userProfile?.isAdmin === true;
 
-  if (!isUserLoading && !isAdmin) {
-    router.push('/login');
+  if (!isUserLoading && !isProfileLoading && !isAdmin) {
+    router.push('/'); // Redirect non-admins to the dashboard
     return null;
   }
 
 
-  const isLoading = isUserLoading || usersLoading;
+  const isLoading = isUserLoading || usersLoading || isProfileLoading;
 
   return (
     <div className="flex-1 flex flex-col">
