@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useMemoFirebase } from '@/firebase/provider';
 import { collection, query, doc } from 'firebase/firestore';
 import { useCollection, useDoc, useFirestore, useUser } from '@/firebase';
@@ -35,7 +35,7 @@ interface User {
 
 export default function ManageUsersPage() {
   const firestore = useFirestore();
-  const { user: authUser, isUserLoading } = useUser();
+  const { user: authUser, isUserLoading: isAuthUserLoading } = useUser();
   const router = useRouter();
 
   const userDocRef = useMemoFirebase(() => {
@@ -45,33 +45,27 @@ export default function ManageUsersPage() {
 
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<User>(userDocRef);
 
-  const usersQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    // This query is intentionally restricted for security.
-    // In a real app, you'd use a Cloud Function to get all users.
-    // For now, we'll just show the current user if they are an admin.
-    if (userProfile?.isAdmin) {
-      return query(collection(firestore, 'users'));
-    }
-    return null;
-  }, [firestore, userProfile?.isAdmin]);
+  // This is a placeholder. In a real-world secure app, you would fetch users
+  // via a Cloud Function, not a direct client-side query.
+  // For now, we only show the current admin to avoid security rule violations.
+  const users = userProfile ? [userProfile] : [];
+  const usersLoading = isProfileLoading;
 
-  const { data: users, isLoading: usersLoading } = useCollection<User>(usersQuery);
 
   const isAdmin = userProfile?.isAdmin === true;
 
   useEffect(() => {
-    if (!isUserLoading && !isProfileLoading && !isAdmin) {
-      router.push('/dashboard'); // Redirect non-admins to the dashboard
+    // Redirect non-admins away from this page
+    if (!isAuthUserLoading && !isProfileLoading && !isAdmin) {
+      router.push('/dashboard');
     }
-  }, [isUserLoading, isProfileLoading, isAdmin, router]);
+  }, [isAuthUserLoading, isProfileLoading, isAdmin, router]);
 
 
-  const isLoading = isUserLoading || usersLoading || isProfileLoading;
+  const isLoading = isAuthUserLoading || usersLoading;
 
-  if (!isAdmin && (isUserLoading || isProfileLoading)) {
-      // While we determine if the user is an admin, show a loading state
-      // or return null to avoid rendering the page content prematurely.
+  if (isLoading && !users.length) {
+      // Show a loading skeleton while we verify admin status and fetch data
       return (
         <div className="flex-1 flex flex-col">
           <Header title="Manage Users">
@@ -79,7 +73,7 @@ export default function ManageUsersPage() {
                 <PlusCircle className="mr-2 h-4 w-4" /> Add User
               </Button>
           </Header>
-            <div className="flex-1 p-4 md:p-8">
+            <main className="flex-1 p-4 md:p-8">
                 <Card>
                     <CardHeader>
                         <CardTitle>User Administration</CardTitle>
@@ -117,13 +111,13 @@ export default function ManageUsersPage() {
                         </Table>
                     </CardContent>
                 </Card>
-            </div>
+            </main>
         </div>
       )
   }
 
   if (!isAdmin) {
-    // If not an admin and not loading, we'll be redirected by the useEffect.
+    // If not an admin, we'll be redirected by the useEffect.
     // Return null to prevent rendering anything for non-admins.
     return null;
   }
@@ -152,28 +146,7 @@ export default function ManageUsersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading && (
-                  <>
-                    {[...Array(3)].map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                            <Skeleton className="h-10 w-10 rounded-full" />
-                            <Skeleton className="h-4 w-32" />
-                        </div>
-                      </TableCell>
-                       <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-48" /></TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        <Skeleton className="h-6 w-16 rounded-full" />
-                      </TableCell>
-                       <TableCell className="text-right">
-                         <Skeleton className="h-8 w-20" />
-                       </TableCell>
-                    </TableRow>
-                    ))}
-                  </>
-                )}
-                {!isLoading && users && users.length > 0 ? (
+                {users && users.length > 0 ? (
                   users.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell>
@@ -197,13 +170,11 @@ export default function ManageUsersPage() {
                     </TableRow>
                   ))
                 ) : (
-                  !isLoading && (
                     <TableRow>
                       <TableCell colSpan={4} className="h-24 text-center">
-                        No users found.
+                        No users to display. A secure implementation would use a Cloud Function to fetch all users.
                       </TableCell>
                     </TableRow>
-                  )
                 )}
               </TableBody>
             </Table>
