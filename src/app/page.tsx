@@ -70,7 +70,7 @@ export default function LandingPage() {
           <div className="container">
             <div className="text-center">
               <h2 className="text-3xl font-bold">Why Choose bitgro?</h2>
-              <p className="mt-2 text-muted-foreground">
+              <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
                 We provide the tools and expertise to help you succeed.
               </p>
             </div>
@@ -137,7 +137,7 @@ export default function LandingPage() {
           <div className="container">
             <div className="text-center">
               <h2 className="text-3xl font-bold">Loved by Investors Worldwide</h2>
-              <p className="mt-2 text-muted-foreground">
+              <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
                 See what our users are saying about their success with bitgro.
               </p>
             </div>
