@@ -1,4 +1,3 @@
-// This is a new file for the admin user management page.
 
 'use client';
 
@@ -23,7 +22,6 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 
-// Define the shape of a user object based on your backend.json
 interface User {
   id: string;
   firstName: string;
@@ -34,7 +32,7 @@ interface User {
 
 export default function ManageUsersPage() {
   const firestore = useFirestore();
-  const { user: authUser, isUserLoading: isAuthUserLoading } = useUser();
+  const { user: authUser, isUserLoading: isAuthLoading } = useUser();
   const router = useRouter();
 
   const userDocRef = useMemoFirebase(() => {
@@ -43,87 +41,82 @@ export default function ManageUsersPage() {
   }, [firestore, authUser]);
 
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<User>(userDocRef);
-  
-  const isLoading = isAuthUserLoading || isProfileLoading;
+
+  const isLoading = isAuthLoading || isProfileLoading;
   const isAdmin = userProfile?.isAdmin === true;
 
-  // This is a placeholder. In a real-world secure app, you would fetch users
-  // via a Cloud Function, not a direct client-side query.
-  // For now, we only show the current admin to avoid security rule violations.
-  const users = userProfile ? [userProfile] : [];
-
-
   useEffect(() => {
-    // Only perform the check once loading is complete.
-    if (!isLoading) {
-      // If loading is complete and the user is not an admin, then redirect.
-      if (!isAdmin) {
-        router.push('/dashboard');
-      }
+    // Only redirect if loading is complete AND the user is confirmed to not be an admin.
+    if (!isLoading && !isAdmin) {
+      router.push('/dashboard');
     }
   }, [isLoading, isAdmin, router]);
 
-
+  // While loading, show a skeleton screen. This prevents any rendering of the final page
+  // and stops the premature redirect.
   if (isLoading) {
-      // Show a loading skeleton while we verify admin status and fetch data
-      return (
-        <div className="flex-1 flex flex-col">
-          <Header title="Manage Users">
-              <Button>
-                <PlusCircle className="mr-2 h-4 w-4" /> Add User
-              </Button>
-          </Header>
-            <main className="flex-1 p-4 md:p-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>User Administration</CardTitle>
-                        <CardDescription>View and manage all users in the system.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                <TableHead>User</TableHead>
-                                <TableHead className="hidden sm:table-cell">Email</TableHead>
-                                <TableHead className="hidden md:table-cell">Role</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {[...Array(3)].map((_, i) => (
-                                <TableRow key={i}>
-                                  <TableCell>
-                                    <div className="flex items-center gap-3">
-                                        <Skeleton className="h-10 w-10 rounded-full" />
-                                        <Skeleton className="h-4 w-32" />
-                                    </div>
-                                  </TableCell>
-                                   <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-48" /></TableCell>
-                                  <TableCell className="hidden md:table-cell">
-                                    <Skeleton className="h-6 w-16 rounded-full" />
-                                  </TableCell>
-                                   <TableCell className="text-right">
-                                     <Skeleton className="h-8 w-20" />
-                                   </TableCell>
-                                </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
-            </main>
-        </div>
-      )
+    return (
+      <div className="flex-1 flex flex-col">
+        <Header title="Manage Users">
+          <Button disabled>
+            <PlusCircle className="mr-2 h-4 w-4" /> Add User
+          </Button>
+        </Header>
+        <main className="flex-1 p-4 md:p-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>User Administration</CardTitle>
+              <CardDescription>View and manage all users in the system.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>User</TableHead>
+                    <TableHead className="hidden sm:table-cell">Email</TableHead>
+                    <TableHead className="hidden md:table-cell">Role</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {[...Array(3)].map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Skeleton className="h-10 w-10 rounded-full" />
+                          <div className="space-y-2">
+                             <Skeleton className="h-4 w-32" />
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-48" /></TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <Skeleton className="h-6 w-16 rounded-full" />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Skeleton className="h-9 w-20" />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
   }
 
-  // If loading is finished and the user is NOT an admin, the useEffect will have already
-  // initiated the redirect. We return null here to prevent flashing the admin content
-  // to a non-admin user during the brief moment before the redirect completes.
+  // If loading is complete and the user is NOT an admin, the useEffect will have
+  // already initiated the redirect. We return null to prevent flashing admin content.
   if (!isAdmin) {
     return null;
   }
+  
+  // This is a placeholder for user data. A secure app would fetch this from a Cloud Function.
+  const users = userProfile ? [userProfile] : [];
 
-  // If loading is finished AND the user IS an admin, render the page.
+  // If loading is complete AND the user IS an admin, render the page.
   return (
     <div className="flex-1 flex flex-col">
       <Header title="Manage Users">
@@ -148,7 +141,7 @@ export default function ManageUsersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users && users.length > 0 ? (
+                {users.length > 0 ? (
                   users.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell>
@@ -172,11 +165,11 @@ export default function ManageUsersPage() {
                     </TableRow>
                   ))
                 ) : (
-                    <TableRow>
-                      <TableCell colSpan={4} className="h-24 text-center">
-                        No users to display. A secure implementation would use a Cloud Function to fetch all users.
-                      </TableCell>
-                    </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={4} className="h-24 text-center">
+                       A secure implementation would use a Cloud Function to fetch all users.
+                    </TableCell>
+                  </TableRow>
                 )}
               </TableBody>
             </Table>
