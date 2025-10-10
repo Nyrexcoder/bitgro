@@ -54,7 +54,6 @@
         "firstName",
         "lastName",
         "email",
-        "walletId",
         "isAdmin"
       ]
     },
@@ -245,8 +244,7 @@
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "password"
     ]
   },
   "firestore": {

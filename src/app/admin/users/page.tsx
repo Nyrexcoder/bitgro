@@ -4,7 +4,7 @@
 
 import { useMemo } from 'react';
 import { collection, query } from 'firebase/firestore';
-import { useCollection, useFirestore } from '@/firebase';
+import { useCollection, useFirestore, useUser } from '@/firebase';
 import { Header } from '@/components/header';
 import {
   Table,
@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useRouter } from 'next/navigation';
 
 // Define the shape of a user object based on your backend.json
 interface User {
@@ -30,13 +31,26 @@ interface User {
 
 export default function ManageUsersPage() {
   const firestore = useFirestore();
+  const { user: authUser, isUserLoading } = useUser();
+  const router = useRouter();
 
   const usersQuery = useMemo(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'users'));
   }, [firestore]);
 
-  const { data: users, isLoading } = useCollection<User>(usersQuery);
+  const { data: users, isLoading: usersLoading } = useCollection<User>(usersQuery);
+
+  // A real app would get user roles from the user object
+  const isAdmin = authUser && !authUser.isAnonymous; // For now, we assume any logged in user is admin.
+
+  if (!isUserLoading && !isAdmin) {
+    router.push('/login');
+    return null;
+  }
+
+
+  const isLoading = isUserLoading || usersLoading;
 
   return (
     <div className="flex-1 flex flex-col">
@@ -60,16 +74,23 @@ export default function ManageUsersPage() {
               <TableBody>
                 {isLoading && (
                   <>
-                    <TableRow>
-                      <TableCell colSpan={4}>
-                        <Skeleton className="h-12" />
+                    {[...Array(3)].map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                            <Skeleton className="h-10 w-10 rounded-full" />
+                            <Skeleton className="h-4 w-32" />
+                        </div>
                       </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell colSpan={4}>
-                        <Skeleton className="h-12" />
+                       <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-48" /></TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <Skeleton className="h-6 w-16 rounded-full" />
                       </TableCell>
+                       <TableCell className="text-right">
+                         <Skeleton className="h-8 w-20" />
+                       </TableCell>
                     </TableRow>
+                    ))}
                   </>
                 )}
                 {!isLoading && users && users.length > 0 ? (

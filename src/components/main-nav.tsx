@@ -51,9 +51,15 @@ const adminLinks = [
 export function MainNav() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
-  // A real app would get user roles from the user object
   const { user } = useUser();
-  const isAdmin = user && !user.isAnonymous; // For now, we assume any logged in user is admin.
+  
+  // A real app would have more robust role management.
+  // Here we assume any authenticated non-anonymous user is an admin.
+  const isAdmin = user && !user.isAnonymous; 
+
+  const handleLinkClick = () => {
+    setOpenMobile(false);
+  };
 
   return (
     <SidebarMenu>
@@ -64,7 +70,7 @@ export function MainNav() {
               isActive={pathname === link.href}
               className="w-full"
               asChild
-              onClick={() => setOpenMobile(false)}
+              onClick={handleLinkClick}
             >
               <span>
                 <link.icon className="mr-2 h-4 w-4" />
@@ -85,7 +91,7 @@ export function MainNav() {
                 isActive={pathname.startsWith(link.href)}
                 className="w-full"
                 asChild
-                onClick={() => setOpenMobile(false)}
+                onClick={handleLinkClick}
               >
                 <span>
                   <link.icon className="mr-2 h-4 w-4" />
