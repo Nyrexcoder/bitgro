@@ -2,6 +2,7 @@
 
 'use client';
 
+import { useEffect } from 'react';
 import { useMemoFirebase } from '@/firebase/provider';
 import { collection, query, doc } from 'firebase/firestore';
 import { useCollection, useDoc, useFirestore, useUser } from '@/firebase';
@@ -50,13 +51,69 @@ export default function ManageUsersPage() {
 
   const isAdmin = userProfile?.isAdmin === true;
 
-  if (!isUserLoading && !isProfileLoading && !isAdmin) {
-    router.push('/'); // Redirect non-admins to the dashboard
-    return null;
-  }
+  useEffect(() => {
+    if (!isUserLoading && !isProfileLoading && !isAdmin) {
+      router.push('/'); // Redirect non-admins to the dashboard
+    }
+  }, [isUserLoading, isProfileLoading, isAdmin, router]);
 
 
   const isLoading = isUserLoading || usersLoading || isProfileLoading;
+
+  if (!isAdmin && (isUserLoading || isProfileLoading)) {
+      // While we determine if the user is an admin, show a loading state
+      // or return null to avoid rendering the page content prematurely.
+      return (
+        <div className="flex-1 flex flex-col">
+          <Header title="Manage Users" />
+            <div className="flex-1 p-4 md:p-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>User Administration</CardTitle>
+                        <CardDescription>View and manage all users in the system.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                <TableHead>User</TableHead>
+                                <TableHead className="hidden sm:table-cell">Email</TableHead>
+                                <TableHead className="hidden md:table-cell">Role</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {[...Array(3)].map((_, i) => (
+                                <TableRow key={i}>
+                                  <TableCell>
+                                    <div className="flex items-center gap-3">
+                                        <Skeleton className="h-10 w-10 rounded-full" />
+                                        <Skeleton className="h-4 w-32" />
+                                    </div>
+                                  </TableCell>
+                                   <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-48" /></TableCell>
+                                  <TableCell className="hidden md:table-cell">
+                                    <Skeleton className="h-6 w-16 rounded-full" />
+                                  </TableCell>
+                                   <TableCell className="text-right">
+                                     <Skeleton className="h-8 w-20" />
+                                   </TableCell>
+                                </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+      )
+  }
+
+  if (!isAdmin) {
+    // If not an admin and not loading, we'll be redirected by the useEffect.
+    // Return null to prevent rendering anything for non-admins.
+    return null;
+  }
 
   return (
     <div className="flex-1 flex flex-col">
