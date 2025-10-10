@@ -1,7 +1,28 @@
 
+import { AppLogo } from '@/components/app-logo';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+
 export default function TermsPage() {
   return (
     <div className="flex-1 flex flex-col min-h-screen">
+       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 items-center">
+          <div className="mr-4 flex">
+            <Link href="/" className="mr-6 flex items-center space-x-2">
+              <AppLogo />
+            </Link>
+          </div>
+          <div className="flex flex-1 items-center justify-end space-x-2">
+            <Button variant="ghost" asChild>
+              <Link href="/login">Login</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/signup">Get Started</Link>
+            </Button>
+          </div>
+        </div>
+      </header>
        <main className="flex-1 py-12 md:py-24">
         <div className="container max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-4">Terms and Conditions</h1>
@@ -29,6 +50,11 @@ export default function TermsPage() {
           </div>
         </div>
       </main>
+        <footer className="border-t">
+            <div className="container py-6 text-center text-sm text-muted-foreground">
+                <p>&copy; {new Date().getFullYear()} bitgro. All rights reserved by nyrexDeveloper.</p>
+            </div>
+        </footer>
     </div>
   );
 }

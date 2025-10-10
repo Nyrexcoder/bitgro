@@ -58,7 +58,7 @@ export default function LandingPage() {
                     alt="Dashboard preview"
                     width={1200}
                     height={600}
-                    className="rounded-lg shadow-lg"
+                    className="rounded-lg shadow-lg mx-auto"
                     data-ai-hint="dashboard financial"
                   />
             </div>
@@ -67,7 +67,7 @@ export default function LandingPage() {
 
         {/* Benefits Section */}
         <section id="benefits" className="py-20 bg-muted">
-          <div className="container text-center">
+          <div className="container">
             <div className="text-center">
               <h2 className="text-3xl font-bold">Why Choose bitgro?</h2>
               <p className="mt-2 text-muted-foreground">
@@ -117,11 +117,13 @@ export default function LandingPage() {
 
         {/* Packages Section */}
         <section id="packages" className="py-20">
-          <div className="container text-center">
-            <h2 className="text-3xl font-bold">Our Investment Packages</h2>
-            <p className="mt-2 max-w-2xl mx-auto text-muted-foreground">
-              Choose the plan that's right for you and start growing your wealth today.
-            </p>
+          <div className="container">
+            <div className="text-center">
+                <h2 className="text-3xl font-bold">Our Investment Packages</h2>
+                <p className="mt-2 max-w-2xl mx-auto text-muted-foreground">
+                Choose the plan that's right for you and start growing your wealth today.
+                </p>
+            </div>
             <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {packages.map((pkg) => (
                 <PackageCard key={pkg.id} packageInfo={pkg} />
@@ -132,7 +134,7 @@ export default function LandingPage() {
 
         {/* Testimonials Section */}
         <section id="testimonials" className="py-20 bg-muted">
-          <div className="container text-center">
+          <div className="container">
             <div className="text-center">
               <h2 className="text-3xl font-bold">Loved by Investors Worldwide</h2>
               <p className="mt-2 text-muted-foreground">
