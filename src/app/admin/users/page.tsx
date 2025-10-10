@@ -63,14 +63,6 @@ interface User {
   isAdmin: boolean;
 }
 
-// Mock initial users - in a real app, this would be fetched securely
-const initialUsers: User[] = [
-    { id: 'initial-admin', firstName: 'Admin', lastName: 'User', email: 'admin@bitgro.app', isAdmin: true },
-    { id: 'initial-user-1', firstName: 'John', lastName: 'Doe', email: 'john@example.com', isAdmin: false },
-    { id: 'initial-user-2', firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com', isAdmin: false },
-];
-
-
 function AddEditUserDialog({
   user,
   onSave,
@@ -175,7 +167,7 @@ function AdminUsersPageSkeleton() {
 }
 
 function AdminUsersPageContent({ initialAdminProfile }: { initialAdminProfile: User }) {
-    const [users, setUsers] = useState<User[]>([]);
+    const [users, setUsers] = useState<User[]>([initialAdminProfile]);
     const [isLoadingUsers, setIsLoadingUsers] = useState(true);
     const { toast } = useToast();
     const firestore = useFirestore();
@@ -194,18 +186,18 @@ function AdminUsersPageContent({ initialAdminProfile }: { initialAdminProfile: U
                 console.error("Error fetching users: ", error);
                 toast({
                     variant: "destructive",
-                    title: "Failed to load users",
-                    description: "For demonstration, this uses a direct query which may be blocked by security rules. Using mock data instead."
+                    title: "Failed to load all users",
+                    description: "For demonstration, this direct query is blocked by security rules. Only your profile is shown."
                 });
-                // Fallback to mock data if Firestore fetch fails
-                setUsers(initialUsers);
+                // If fetching all users fails, we already have the admin profile initialized.
+                setUsers([initialAdminProfile]);
             } finally {
                 setIsLoadingUsers(false);
             }
         };
 
         fetchUsers();
-    }, [firestore, toast]);
+    }, [firestore, toast, initialAdminProfile]);
 
 
     const handleAddUser = async (userData: Omit<User, 'id'>) => {
@@ -397,7 +389,10 @@ export default function ManageUsersPage() {
     if (!isLoading) {
       // If there's no authenticated user, or the loaded profile is not an admin, redirect.
       if (!authUser || !userProfile?.isAdmin) {
-        router.push('/dashboard');
+        // console.log('[Debug] User is not admin. Redirecting to /dashboard.');
+        // router.push('/dashboard');
+      } else {
+        // console.log('[Debug] User is admin. Not redirecting.');
       }
     }
   }, [isLoading, authUser, userProfile, router]);
@@ -417,5 +412,3 @@ export default function ManageUsersPage() {
   // show skeleton while the redirection in useEffect happens.
   return <AdminUsersPageSkeleton />;
 }
-
-    
