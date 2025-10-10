@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -46,6 +47,9 @@ export default function SignupPage() {
   async function onSubmit(values: SignupFormValues) {
     setIsLoading(true);
     try {
+      if (!auth || !firestore) {
+        throw new Error('Firebase services not available');
+      }
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
 
@@ -68,7 +72,7 @@ export default function SignupPage() {
         title: 'Account Created',
         description: "You've been successfully signed up!",
       });
-      router.push('/');
+      router.push('/dashboard');
     } catch (error: any) {
       console.error(error);
       toast({

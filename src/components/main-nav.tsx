@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -8,6 +9,7 @@ import {
   Users,
   ArrowLeftRight,
   Shield,
+  Home,
 } from 'lucide-react';
 import {
   SidebarMenu,
@@ -15,11 +17,14 @@ import {
   SidebarMenuButton,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useDoc } from '@/firebase';
+import { useMemoFirebase } from '@/firebase/provider';
+import { doc } from 'firebase/firestore';
+
 
 const links = [
   {
-    href: '/',
+    href: '/dashboard',
     label: 'Dashboard',
     icon: LayoutDashboard,
   },
@@ -48,26 +53,53 @@ const adminLinks = [
   },
 ]
 
+interface UserProfile {
+  isAdmin: boolean;
+}
+
 export function MainNav() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
   const { user } = useUser();
-  
-  // A real app would have more robust role management.
-  // Here we assume any authenticated non-anonymous user is an admin.
-  const isAdmin = user && !user.isAnonymous; 
+  const firestore = useFirestore();
+
+  const userDocRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [firestore, user]);
+
+  const { data: userProfile } = useDoc<UserProfile>(userDocRef);
+
+  const isAdmin = userProfile?.isAdmin === true; 
 
   const handleLinkClick = () => {
-    setOpenMobile(false);
+    if (setOpenMobile) {
+      setOpenMobile(false);
+    }
   };
 
   return (
     <SidebarMenu>
+        <SidebarMenuItem>
+          <Link href="/" passHref>
+            <SidebarMenuButton
+              isActive={pathname === '/'}
+              className="w-full"
+              asChild
+              onClick={handleLinkClick}
+            >
+              <span>
+                <Home className="mr-2 h-4 w-4" />
+                <span>Home</span>
+              </span>
+            </SidebarMenuButton>
+          </Link>
+        </SidebarMenuItem>
       {links.map((link) => (
         <SidebarMenuItem key={link.href}>
           <Link href={link.href} passHref>
             <SidebarMenuButton
-              isActive={pathname === link.href}
+              isActive={pathname.startsWith(link.href) && link.href !== '/'}
               className="w-full"
               asChild
               onClick={handleLinkClick}

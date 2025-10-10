@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -5,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,12 +41,15 @@ export default function LoginPage() {
   async function onSubmit(values: LoginFormValues) {
     setIsLoading(true);
     try {
+      if (!auth) {
+        throw new Error('Auth service not available');
+      }
       await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({
         title: 'Login Successful',
         description: 'Welcome back!',
       });
-      router.push('/');
+      router.push('/dashboard');
     } catch (error: any) {
       console.error(error);
       toast({
