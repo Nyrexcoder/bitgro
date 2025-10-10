@@ -383,23 +383,23 @@ export default function ManageUsersPage() {
 
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<User>(userDocRef);
 
-  const isLoading = isAuthLoading || isProfileLoading;
-
   useEffect(() => {
-    // Wait until loading is fully complete before making any decisions
-    if (!isLoading) {
-      // If there's no authenticated user, or the loaded profile is not an admin, redirect.
-      if (!authUser || !userProfile?.isAdmin) {
-        // console.log('[Debug] User is not admin. Redirecting to /dashboard.');
+    // Only perform actions once both authentication and profile loading are complete
+    if (!isAuthLoading && !isProfileLoading) {
+      // If there's no authenticated user at all, redirect to login
+      if (!authUser) {
+        router.push('/login');
+      }
+      // If there is a user, but their profile doesn't mark them as an admin, redirect
+      else if (!userProfile?.isAdmin) {
         router.push('/dashboard');
-      } else {
-        // console.log('[Debug] User is admin. Not redirecting.');
       }
     }
-  }, [isLoading, authUser, userProfile, router]);
+  }, [isAuthLoading, isProfileLoading, authUser, userProfile, router]);
 
 
   // While loading authentication or profile, show a skeleton screen.
+  const isLoading = isAuthLoading || isProfileLoading;
   if (isLoading) {
     return <AdminUsersPageSkeleton />;
   }
@@ -410,8 +410,7 @@ export default function ManageUsersPage() {
   }
 
   // If loading is complete but user is not an admin (or no profile),
-  // show skeleton while the redirection in useEffect happens.
+  // a redirect is already in progress from the useEffect. Show a skeleton
+  // screen to prevent showing a blank page or forbidden content.
   return <AdminUsersPageSkeleton />;
 }
-
-    
