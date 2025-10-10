@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect } from 'react';
@@ -161,54 +162,31 @@ export default function ManageUsersPage() {
   const isLoading = isAuthLoading || isProfileLoading;
 
   useEffect(() => {
-    console.log('[Debug] isLoading:', isLoading);
-    console.log('[Debug] authUser:', authUser);
-    console.log('[Debug] userProfile:', userProfile);
-
-    // Wait until all loading is complete before making a decision.
-    if (isLoading) {
-      console.log('[Debug] Still loading, waiting...');
-      return; // Still loading, do nothing.
-    }
-
-    // If loading is finished and there's no authenticated user, redirect to login.
-    if (!authUser) {
-      console.log('[Debug] No authUser found. Redirecting to /login.');
-      // router.push('/login');
-      return;
-    }
-
-    // If loading is finished and the user is not an admin (or profile doesn't exist), redirect to dashboard.
-    if (!userProfile?.isAdmin) {
-      console.log('[Debug] User is not admin. Redirecting to /dashboard.');
-      console.log('[Debug] userProfile.isAdmin value is:', userProfile?.isAdmin);
-      // router.push('/dashboard');
-    } else {
-      console.log('[Debug] User is admin. Not redirecting.');
+    // Only perform actions once all data is loaded.
+    if (!isLoading) {
+      // If there's no authenticated user, redirect to login.
+      if (!authUser) {
+        router.push('/login');
+      }
+      // If the loaded profile is not an admin, redirect to dashboard.
+      else if (!userProfile?.isAdmin) {
+        router.push('/dashboard');
+      }
     }
   }, [isLoading, authUser, userProfile, router]);
 
 
-  // While loading, show the skeleton. This is the primary loading state.
+  // While loading, show the skeleton.
   if (isLoading) {
     return <AdminUsersPageSkeleton />;
   }
 
-  // If loading is complete and the user is an admin, show the content.
+  // If loading is complete and we have an admin user, show the page.
   if (userProfile?.isAdmin) {
     return <AdminUsersPageContent userProfile={userProfile} users={[userProfile]} />;
   }
 
-  // If not loading and not an admin (the useEffect has already started the redirect),
-  // render the skeleton to prevent a flash of an empty screen.
-  // We also add a message here for debugging purposes on the screen.
-  return (
-    <div>
-        <AdminUsersPageSkeleton />
-        <div className="p-4 text-center text-red-500">
-            <p>Debugging: Redirection is paused.</p>
-            <p>User is not identified as an admin. Check the console for details.</p>
-        </div>
-    </div>
-  );
+  // If loading is complete but the user is not an admin (and redirection is in progress),
+  // continue showing the skeleton to prevent a flash of an empty screen.
+  return <AdminUsersPageSkeleton />;
 }
