@@ -1,3 +1,5 @@
+'use client';
+import { useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -14,10 +16,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { transactions } from '@/lib/data';
 import type { Transaction } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy, limit } from 'firebase/firestore';
+import { Loader2 } from 'lucide-react';
+
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-IN', {
@@ -44,7 +49,19 @@ const getBadgeVariant = (
 };
 
 export function RecentTransactions() {
-  const recentTransactions = transactions.slice(0, 5);
+  const { user: authUser } = useUser();
+  const firestore = useFirestore();
+
+  const transactionsQuery = useMemoFirebase(() => {
+    if (!authUser || !firestore) return null;
+    return query(
+        collection(firestore, 'users', authUser.uid, 'wallets', authUser.uid, 'transactions'), 
+        orderBy('transactionDate', 'desc'), 
+        limit(5)
+    );
+  }, [authUser, firestore]);
+
+  const { data: recentTransactions, isLoading } = useCollection<Transaction>(transactionsQuery);
 
   return (
     <Card>
@@ -55,6 +72,11 @@ export function RecentTransactions() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {isLoading ? (
+            <div className="flex justify-center items-center h-40">
+                <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+        ) : (
         <Table>
           <TableHeader>
             <TableRow>
@@ -65,40 +87,49 @@ export function RecentTransactions() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {recentTransactions.map((transaction) => (
-              <TableRow key={transaction.id}>
-                <TableCell>
-                  <div className="font-medium">{transaction.description}</div>
-                  <div className="text-sm text-muted-foreground md:hidden">
-                    {format(parseISO(transaction.date), 'MMM d, yyyy')}
-                  </div>
-                </TableCell>
-                <TableCell className="hidden sm:table-cell">
-                  <Badge
-                    variant={getBadgeVariant(transaction.type)}
-                    className="capitalize"
-                  >
-                    {transaction.type}
-                  </Badge>
-                </TableCell>
-                <TableCell className="hidden sm:table-cell">
-                   {format(parseISO(transaction.date), 'MMM d, yyyy')}
-                </TableCell>
-                <TableCell
-                  className={cn(
-                    'text-right font-medium',
-                    transaction.amount > 0
-                      ? 'text-accent-foreground'
-                      : 'text-foreground'
-                  )}
-                >
-                  {transaction.amount > 0 ? '+' : ''}
-                  {formatCurrency(transaction.amount)}
-                </TableCell>
-              </TableRow>
-            ))}
+            {recentTransactions && recentTransactions.length > 0 ? (
+                recentTransactions.map((transaction) => (
+                <TableRow key={transaction.id}>
+                    <TableCell>
+                    <div className="font-medium">{transaction.description}</div>
+                    <div className="text-sm text-muted-foreground md:hidden">
+                        {format(parseISO(transaction.transactionDate), 'MMM d, yyyy')}
+                    </div>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                    <Badge
+                        variant={getBadgeVariant(transaction.transactionType as Transaction['type'])}
+                        className="capitalize"
+                    >
+                        {transaction.transactionType}
+                    </Badge>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                    {format(parseISO(transaction.transactionDate), 'MMM d, yyyy')}
+                    </TableCell>
+                    <TableCell
+                    className={cn(
+                        'text-right font-medium',
+                        transaction.amount > 0
+                        ? 'text-accent-foreground'
+                        : 'text-foreground'
+                    )}
+                    >
+                    {transaction.amount > 0 ? '+' : ''}
+                    {formatCurrency(transaction.amount)}
+                    </TableCell>
+                </TableRow>
+                ))
+             ) : (
+                <TableRow>
+                    <TableCell colSpan={4} className="h-24 text-center">
+                    No transactions found.
+                    </TableCell>
+                </TableRow>
+             )}
           </TableBody>
         </Table>
+        )}
       </CardContent>
     </Card>
   );

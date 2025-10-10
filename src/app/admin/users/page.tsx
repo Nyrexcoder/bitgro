@@ -3,7 +3,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { doc, setDoc, deleteDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
-import { useDoc, useFirestore, useUser } from '@/firebase';
+import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { Header } from '@/components/header';
 import {
   Table,
@@ -376,7 +376,7 @@ export default function ManageUsersPage() {
   const { user: authUser, isUserLoading: isAuthLoading } = useUser();
   const router = useRouter();
 
-  const userDocRef = useMemo(() => {
+  const userDocRef = useMemoFirebase(() => {
     if (!firestore || !authUser) return null;
     return doc(firestore, 'users', authUser.uid);
   }, [firestore, authUser]);
@@ -384,33 +384,24 @@ export default function ManageUsersPage() {
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<User>(userDocRef);
 
   useEffect(() => {
-    // Only perform actions once both authentication and profile loading are complete
     if (!isAuthLoading && !isProfileLoading) {
-      // If there's no authenticated user at all, redirect to login
       if (!authUser) {
         router.push('/login');
-      }
-      // If there is a user, but their profile doesn't mark them as an admin, redirect
-      else if (!userProfile?.isAdmin) {
+      } else if (userProfile && !userProfile.isAdmin) {
         router.push('/dashboard');
       }
     }
   }, [isAuthLoading, isProfileLoading, authUser, userProfile, router]);
 
-
-  // While loading authentication or profile, show a skeleton screen.
   const isLoading = isAuthLoading || isProfileLoading;
+
   if (isLoading) {
     return <AdminUsersPageSkeleton />;
   }
 
-  // If loading is complete AND the user is an admin, show the page content.
   if (userProfile?.isAdmin) {
     return <AdminUsersPageContent initialAdminProfile={userProfile} />;
   }
-
-  // If loading is complete but user is not an admin (or no profile),
-  // a redirect is already in progress from the useEffect. Show a skeleton
-  // screen to prevent showing a blank page or forbidden content.
+  
   return <AdminUsersPageSkeleton />;
 }

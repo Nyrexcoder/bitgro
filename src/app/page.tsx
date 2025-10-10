@@ -1,3 +1,7 @@
+'use client';
+import { useMemo } from 'react';
+import { collection, query, limit } from 'firebase/firestore';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 
 import { AppLogo } from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
@@ -5,12 +9,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import Image from 'next/image';
-import { CheckCircle2, TrendingUp, Users, Lock, ArrowRight } from 'lucide-react';
-import { packages } from '@/lib/data';
+import { CheckCircle2, TrendingUp, Users, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import { PackageCard } from '@/components/packages/package-card';
+import type { Package } from '@/lib/types';
 
 
 export default function LandingPage() {
+  const firestore = useFirestore();
+
+  const packagesQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'packages'), limit(4));
+  }, [firestore]);
+
+  const { data: packages, isLoading } = useCollection<Omit<Package, 'image' | 'imageHint'>>(packagesQuery);
+
+    // Manually add image and imageHint for now as they are not in the DB schema
+    const packagesWithImages = packages?.map((pkg, index) => ({
+      ...pkg,
+      image: `https://picsum.photos/seed/${index + 1}/600/400`,
+      imageHint: 'financial image',
+    }));
+
+
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-background text-foreground">
       {/* Header */}
@@ -143,11 +164,17 @@ export default function LandingPage() {
                 Choose the plan that's right for you and start growing your wealth today.
                 </p>
             </div>
-            <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
-              {packages.slice(0, 4).map((pkg, index) => (
-                <PackageCard key={pkg.id} packageInfo={pkg} isPopular={index === 1} />
-              ))}
-            </div>
+             {isLoading ? (
+                <div className="flex justify-center items-center h-64">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+                ) : (
+                <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
+                {packagesWithImages?.map((pkg, index) => (
+                    <PackageCard key={pkg.id} packageInfo={pkg} isPopular={index === 1} />
+                ))}
+                </div>
+            )}
             <div className="mt-12 text-center">
                 <Button size="lg" variant="outline" asChild>
                     <Link href="/packages">View All Packages</Link>
@@ -275,5 +302,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-    

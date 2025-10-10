@@ -30,19 +30,7 @@ import {
   fraudulentWithdrawalDetection,
   type FraudulentWithdrawalOutput,
 } from '@/ai/flows/fraudulent-withdrawal-detection';
-import { transactions, user } from '@/lib/data';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-
-const withdrawalSchema = z.object({
-  amount: z.coerce
-    .number()
-    .positive({ message: 'Amount must be positive.' })
-    .max(user.walletBalance, {
-      message: 'Amount cannot exceed wallet balance.',
-    }),
-});
-
-type WithdrawalFormValues = z.infer<typeof withdrawalSchema>;
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-IN', {
@@ -51,12 +39,23 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
-export function WithdrawalDialog() {
+export function WithdrawalDialog({ walletBalance }: { walletBalance: number }) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [analysisResult, setAnalysisResult] =
     useState<FraudulentWithdrawalOutput | null>(null);
   const { toast } = useToast();
+
+  const withdrawalSchema = z.object({
+    amount: z.coerce
+      .number()
+      .positive({ message: 'Amount must be positive.' })
+      .max(walletBalance, {
+        message: 'Amount cannot exceed wallet balance.',
+      }),
+  });
+
+  type WithdrawalFormValues = z.infer<typeof withdrawalSchema>;
 
   const form = useForm<WithdrawalFormValues>({
     resolver: zodResolver(withdrawalSchema),
@@ -70,11 +69,11 @@ export function WithdrawalDialog() {
     setAnalysisResult(null);
     try {
       const result = await fraudulentWithdrawalDetection({
-        userId: 'user-123',
+        userId: 'user-123', // This would be dynamic in a real app
         withdrawalAmount: values.amount,
         withdrawalMethod: 'Bank Transfer',
         userAccountAgeDays: 365,
-        transactionHistory: JSON.stringify(transactions.slice(0, 10)),
+        transactionHistory: "[]", // This would be fetched dynamically
         averageDailyWithdrawal: 150.0,
         ipAddress: '127.0.0.1',
         location: 'New York, USA',
@@ -129,7 +128,7 @@ export function WithdrawalDialog() {
                 Available Balance:
                 <span className="font-medium text-foreground">
                   {' '}
-                  {formatCurrency(user.walletBalance)}
+                  {formatCurrency(walletBalance)}
                 </span>
               </p>
               <FormField

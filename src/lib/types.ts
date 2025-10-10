@@ -1,10 +1,12 @@
 
 export type Transaction = {
   id: string;
-  date: string;
-  description: string;
+  walletId: string;
+  transactionType: 'Purchase' | 'Profit' | 'Referral' | 'Withdrawal';
   amount: number;
-  type: 'Purchase' | 'Profit' | 'Referral' | 'Withdrawal';
+  transactionDate: string; // ISO 8601 format
+  description: string;
+  relatedEntityId?: string;
 };
 
 export type Package = {
@@ -19,12 +21,23 @@ export type Package = {
 };
 
 export type User = {
-  name: string;
+  id: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  avatar: string;
-  walletBalance: number;
-  totalProfits: number;
-  activePackagesCount: number;
+  isAdmin: boolean;
+  walletId?: string;
 };
 
-    
+export type UserPackage = {
+    id: string;
+    userId: string;
+    packageId: string;
+    purchaseDate: string; // ISO 8601 format
+    isActive: boolean;
+};
+
+export type Wallet = {
+    id: string;
+    balance: number;
+};
