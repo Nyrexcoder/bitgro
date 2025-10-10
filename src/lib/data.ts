@@ -1,3 +1,4 @@
+
 import type { Package, Transaction, User } from './types';
 
 export const user: User = {
@@ -13,6 +14,7 @@ export const packages: Package[] = [
   {
     id: 'pkg_starter',
     name: 'Starter Pack',
+    description: 'Perfect for getting started with smart investments.',
     price: 500,
     weeklyProfitPercentage: 5,
     referralBonusPercentage: 2,
@@ -22,6 +24,7 @@ export const packages: Package[] = [
   {
     id: 'pkg_growth',
     name: 'Growth Engine',
+    description: 'Accelerate your earnings with higher returns.',
     price: 2000,
     weeklyProfitPercentage: 7,
     referralBonusPercentage: 3.5,
@@ -31,6 +34,7 @@ export const packages: Package[] = [
   {
     id: 'pkg_pro',
     name: 'Pro Investor',
+    description: 'Maximize your potential with our premium plan.',
     price: 5000,
     weeklyProfitPercentage: 10,
     referralBonusPercentage: 5,
@@ -40,6 +44,7 @@ export const packages: Package[] = [
   {
     id: 'pkg_enterprise',
     name: 'Enterprise Tier',
+    description: 'For serious investors looking for the best returns.',
     price: 10000,
     weeklyProfitPercentage: 12,
     referralBonusPercentage: 7,
@@ -106,3 +111,5 @@ export const transactions: Transaction[] = [
     type: 'Purchase',
   },
 ];
+
+    

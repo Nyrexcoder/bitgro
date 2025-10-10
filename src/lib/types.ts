@@ -1,3 +1,4 @@
+
 export type Transaction = {
   id: string;
   date: string;
@@ -9,6 +10,7 @@ export type Transaction = {
 export type Package = {
   id: string;
   name: string;
+  description: string;
   price: number;
   weeklyProfitPercentage: number;
   referralBonusPercentage: number;
@@ -24,3 +26,5 @@ export type User = {
   totalProfits: number;
   activePackagesCount: number;
 };
+
+    

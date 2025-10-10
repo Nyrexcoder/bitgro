@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import Image from 'next/image';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, TrendingUp, Users, Lock } from 'lucide-react';
 import { packages } from '@/lib/data';
 import { PackageCard } from '@/components/packages/package-card';
 
@@ -35,7 +35,7 @@ export default function LandingPage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="py-20 md:py-32">
+        <section className="py-20 md:py-32 animate-fade-in">
           <div className="container text-center">
             <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
               Smart Investments, Simplified.
@@ -66,7 +66,7 @@ export default function LandingPage() {
         </section>
 
         {/* Benefits Section */}
-        <section id="benefits" className="py-20 bg-muted">
+        <section id="benefits" className="py-20 bg-muted animate-fade-in animation-delay-200">
           <div className="container">
             <div className="text-center max-w-2xl mx-auto">
               <h2 className="text-3xl font-bold">Why Choose bitgro?</h2>
@@ -75,37 +75,43 @@ export default function LandingPage() {
               </p>
             </div>
             <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
-              <Card>
-                <CardHeader className="flex flex-row items-center gap-4">
-                  <CheckCircle2 className="h-8 w-8 text-primary" />
-                  <h3 className="text-xl font-semibold">Weekly Profits</h3>
+              <Card className="text-center">
+                <CardHeader>
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <TrendingUp className="h-6 w-6" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
+                  <h3 className="text-xl font-semibold">Weekly Profits</h3>
+                  <p className="text-muted-foreground mt-2">
                     Earn consistent weekly returns on your investment packages,
                     automatically credited to your wallet.
                   </p>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center gap-4">
-                  <CheckCircle2 className="h-8 w-8 text-primary" />
-                  <h3 className="text-xl font-semibold">Generous Referrals</h3>
+              <Card className="text-center">
+                 <CardHeader>
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <Users className="h-6 w-6" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
+                  <h3 className="text-xl font-semibold">Generous Referrals</h3>
+                  <p className="text-muted-foreground mt-2">
                     Invite friends and earn a substantial bonus when they
                     invest. Our referral program is designed to reward you.
                   </p>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center gap-4">
-                  <CheckCircle2 className="h-8 w-8 text-primary" />
-                  <h3 className="text-xl font-semibold">Secure & Transparent</h3>
+              <Card className="text-center">
+                 <CardHeader>
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <Lock className="h-6 w-6" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
+                  <h3 className="text-xl font-semibold">Secure & Transparent</h3>
+                  <p className="text-muted-foreground mt-2">
                     With state-of-the-art security and a clear view of your
                     transactions, your investments are in safe hands.
                   </p>
@@ -116,7 +122,7 @@ export default function LandingPage() {
         </section>
 
         {/* Packages Section */}
-        <section id="packages" className="py-20">
+        <section id="packages" className="py-20 animate-fade-in animation-delay-400">
           <div className="container">
             <div className="text-center max-w-2xl mx-auto">
                 <h2 className="text-3xl font-bold">Our Investment Packages</h2>
@@ -124,16 +130,16 @@ export default function LandingPage() {
                 Choose the plan that's right for you and start growing your wealth today.
                 </p>
             </div>
-            <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
-              {packages.map((pkg) => (
-                <PackageCard key={pkg.id} packageInfo={pkg} />
+            <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
+              {packages.map((pkg, index) => (
+                <PackageCard key={pkg.id} packageInfo={pkg} isPopular={index === 1} />
               ))}
             </div>
           </div>
         </section>
 
         {/* Testimonials Section */}
-        <section id="testimonials" className="py-20 bg-muted">
+        <section id="testimonials" className="py-20 bg-muted animate-fade-in animation-delay-600">
           <div className="container">
             <div className="text-center max-w-2xl mx-auto">
               <h2 className="text-3xl font-bold">Loved by Investors Worldwide</h2>
@@ -150,16 +156,18 @@ export default function LandingPage() {
                     to use!"
                   </p>
                 </CardContent>
-                <CardHeader className="flex flex-row items-center gap-4">
-                  <Avatar>
-                    <AvatarImage src="https://avatar.vercel.sh/sarah.png" alt="Sarah J." />
-                    <AvatarFallback>SJ</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-semibold">Sarah J.</p>
-                    <p className="text-sm text-muted-foreground">
-                      Pro Investor
-                    </p>
+                <CardHeader>
+                  <div className="flex items-center gap-4">
+                      <Avatar>
+                        <AvatarImage src="https://avatar.vercel.sh/sarah.png" alt="Sarah J." />
+                        <AvatarFallback>SJ</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-semibold">Sarah J.</p>
+                        <p className="text-sm text-muted-foreground">
+                          Pro Investor
+                        </p>
+                      </div>
                   </div>
                 </CardHeader>
               </Card>
@@ -171,17 +179,19 @@ export default function LandingPage() {
                     network. Highly recommended!"
                   </p>
                 </CardContent>
-                <CardHeader className="flex flex-row items-center gap-4">
-                  <Avatar>
-                    <AvatarImage src="https://avatar.vercel.sh/mark.png" alt="Mark C." />
-                    <AvatarFallback>MC</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-semibold">Mark C.</p>
-                    <p className="text-sm text-muted-foreground">
-                      Growth Engine User
-                    </p>
-                  </div>
+                <CardHeader>
+                   <div className="flex items-center gap-4">
+                      <Avatar>
+                        <AvatarImage src="https://avatar.vercel.sh/mark.png" alt="Mark C." />
+                        <AvatarFallback>MC</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-semibold">Mark C.</p>
+                        <p className="text-sm text-muted-foreground">
+                          Growth Engine User
+                        </p>
+                      </div>
+                   </div>
                 </CardHeader>
               </Card>
               <Card>
@@ -192,16 +202,18 @@ export default function LandingPage() {
                     already seeing great returns."
                   </p>
                 </CardContent>
-                <CardHeader className="flex flex-row items-center gap-4">
-                  <Avatar>
-                    <AvatarImage src="https://avatar.vercel.sh/emily.png" alt="Emily R." />
-                    <AvatarFallback>ER</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-semibold">Emily R.</p>
-                    <p className="text-sm text-muted-foreground">
-                      Starter Pack User
-                    </p>
+                <CardHeader>
+                  <div className="flex items-center gap-4">
+                      <Avatar>
+                        <AvatarImage src="https://avatar.vercel.sh/emily.png" alt="Emily R." />
+                        <AvatarFallback>ER</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-semibold">Emily R.</p>
+                        <p className="text-sm text-muted-foreground">
+                          Starter Pack User
+                        </p>
+                      </div>
                   </div>
                 </CardHeader>
               </Card>
@@ -246,3 +258,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    
