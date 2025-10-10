@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { useMemoFirebase } from '@/firebase/provider';
 import { collection, query } from 'firebase/firestore';
 import { useCollection, useFirestore, useUser } from '@/firebase';
 import { Header } from '@/components/header';
@@ -34,7 +34,7 @@ export default function ManageUsersPage() {
   const { user: authUser, isUserLoading } = useUser();
   const router = useRouter();
 
-  const usersQuery = useMemo(() => {
+  const usersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'users'));
   }, [firestore]);
