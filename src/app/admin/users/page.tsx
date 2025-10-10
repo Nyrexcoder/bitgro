@@ -1,4 +1,3 @@
-
 // This is a new file for the admin user management page.
 
 'use client';
@@ -44,6 +43,7 @@ export default function ManageUsersPage() {
   }, [firestore, authUser]);
 
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<User>(userDocRef);
+  
   const isLoading = isAuthUserLoading || isProfileLoading;
   const isAdmin = userProfile?.isAdmin === true;
 
