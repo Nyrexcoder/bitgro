@@ -46,12 +46,40 @@ export default function DashboardLayout({
                 <main className="flex-1 flex flex-col">
                   {children}
                 </main>
-                <footer className="p-4 text-center text-sm text-muted-foreground">
-                  all right reserved by nyrexDeveloper
+                <footer className="border-t">
+                  <div className="container py-12">
+                    <div className="grid gap-8 md:grid-cols-3">
+                      <div className="space-y-2">
+                        <AppLogo />
+                        <p className="text-sm text-muted-foreground">
+                          Smart Investments, Simplified.
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-2 md:col-span-2 gap-8">
+                        <div className="space-y-2">
+                          <h4 className="font-semibold">Company</h4>
+                          <ul className="space-y-1">
+                            <li><Link href="/about" className="text-sm text-muted-foreground hover:text-foreground">About Us</Link></li>
+                            <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link></li>
+                          </ul>
+                        </div>
+                        <div className="space-y-2">
+                          <h4 className="font-semibold">Legal</h4>
+                          <ul className="space-y-1">
+                            <li><Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground">Terms & Conditions</Link></li>
+                            <li><Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground">Privacy Policy</Link></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-8 border-t pt-8 flex flex-col sm:flex-row justify-between items-center text-sm text-muted-foreground">
+                      <p>&copy; {new Date().getFullYear()} bitgro. All rights reserved by nyrexDeveloper.</p>
+                      <p className="mt-4 sm:mt-0">Admin Login: admin@bitgro.app / password</p>
+                    </div>
+                  </div>
                 </footer>
               </div>
             </SidebarInset>
           </SidebarProvider>
   );
 }
-
