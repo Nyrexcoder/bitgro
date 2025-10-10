@@ -68,13 +68,13 @@ export default function LandingPage() {
         {/* Benefits Section */}
         <section id="benefits" className="py-20 bg-muted">
           <div className="container">
-            <div className="text-center">
+            <div className="text-center max-w-2xl mx-auto">
               <h2 className="text-3xl font-bold">Why Choose bitgro?</h2>
-              <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
+              <p className="mt-2 text-muted-foreground">
                 We provide the tools and expertise to help you succeed.
               </p>
             </div>
-            <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
               <Card>
                 <CardHeader className="flex flex-row items-center gap-4">
                   <CheckCircle2 className="h-8 w-8 text-primary" />
@@ -118,13 +118,13 @@ export default function LandingPage() {
         {/* Packages Section */}
         <section id="packages" className="py-20">
           <div className="container">
-            <div className="text-center">
+            <div className="text-center max-w-2xl mx-auto">
                 <h2 className="text-3xl font-bold">Our Investment Packages</h2>
-                <p className="mt-2 max-w-2xl mx-auto text-muted-foreground">
+                <p className="mt-2 text-muted-foreground">
                 Choose the plan that's right for you and start growing your wealth today.
                 </p>
             </div>
-            <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
               {packages.map((pkg) => (
                 <PackageCard key={pkg.id} packageInfo={pkg} />
               ))}
@@ -135,13 +135,13 @@ export default function LandingPage() {
         {/* Testimonials Section */}
         <section id="testimonials" className="py-20 bg-muted">
           <div className="container">
-            <div className="text-center">
+            <div className="text-center max-w-2xl mx-auto">
               <h2 className="text-3xl font-bold">Loved by Investors Worldwide</h2>
-              <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
+              <p className="mt-2 text-muted-foreground">
                 See what our users are saying about their success with bitgro.
               </p>
             </div>
-            <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
               <Card>
                 <CardContent className="pt-6">
                   <p className="italic">
