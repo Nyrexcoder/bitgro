@@ -20,8 +20,14 @@ export default function LandingPage() {
             <Link href="/" className="mr-6 flex items-center space-x-2">
               <AppLogo />
             </Link>
+            <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+              <Link href="/" className="transition-colors hover:text-foreground/80 text-foreground">Home</Link>
+              <Link href="/about" className="transition-colors hover:text-foreground/80 text-foreground/60">About</Link>
+              <Link href="/contact" className="transition-colors hover:text-foreground/80 text-foreground/60">Contact</Link>
+              <Link href="/packages" className="transition-colors hover:text-foreground/80 text-foreground/60">Packages</Link>
+            </nav>
           </div>
-          <nav className="flex items-center space-x-6 text-sm font-medium"></nav>
+          
           <div className="flex flex-1 items-center justify-end space-x-2">
             <Button variant="ghost" asChild>
               <Link href="/login">Login</Link>
@@ -270,3 +276,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    

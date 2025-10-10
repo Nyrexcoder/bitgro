@@ -4,19 +4,33 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { AppLogo } from '@/components/app-logo';
+import Link from 'next/link';
 
 export default function ContactPage() {
   return (
     <div className="flex-1 flex flex-col min-h-screen">
        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center">
-            <div className="flex-1" />
-            <Button variant="ghost" asChild>
-                <a href="/login">Login</a>
-            </Button>
-            <Button asChild>
-                <a href="/signup">Get Started</a>
-            </Button>
+            <div className="mr-4 flex">
+              <Link href="/" className="mr-6 flex items-center space-x-2">
+                <AppLogo />
+              </Link>
+              <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+                <Link href="/" className="transition-colors hover:text-foreground/80 text-foreground/60">Home</Link>
+                <Link href="/about" className="transition-colors hover:text-foreground/80 text-foreground/60">About</Link>
+                <Link href="/contact" className="transition-colors hover:text-foreground/80 text-foreground">Contact</Link>
+                <Link href="/packages" className="transition-colors hover:text-foreground/80 text-foreground/60">Packages</Link>
+              </nav>
+            </div>
+            <div className="flex flex-1 items-center justify-end space-x-2">
+              <Button variant="ghost" asChild>
+                  <a href="/login">Login</a>
+              </Button>
+              <Button asChild>
+                  <a href="/signup">Get Started</a>
+              </Button>
+            </div>
         </div>
        </header>
       <main className="flex-1 py-12 md:py-24">
@@ -46,3 +60,5 @@ export default function ContactPage() {
     </div>
   );
 }
+
+    
