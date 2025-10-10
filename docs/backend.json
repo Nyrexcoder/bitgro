@@ -1,0 +1,373 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the SmartVest platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "description": "Date of birth of the user.",
+          "format": "date-time"
+        },
+        "address": {
+          "type": "string",
+          "description": "Address of the user."
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "Phone number of the user."
+        },
+        "walletId": {
+          "type": "string",
+          "description": "Reference to the user's Wallet. (Relationship: User 1:1 Wallet)"
+        },
+        "referrerId": {
+          "type": "string",
+          "description": "Reference to the user who referred this user. (Relationship: User 1:N User (self-referential))"
+        },
+        "isAdmin": {
+          "type": "boolean",
+          "description": "Indicates whether the user is an admin."
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "walletId",
+        "isAdmin"
+      ]
+    },
+    "Package": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Package",
+      "type": "object",
+      "description": "Represents an investment package offered on the SmartVest platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the package."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the package."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the package."
+        },
+        "purchasePrice": {
+          "type": "number",
+          "description": "Purchase price of the package."
+        },
+        "weeklyProfitPercentage": {
+          "type": "number",
+          "description": "Weekly profit percentage offered by the package."
+        },
+        "referralBonusPercentage": {
+          "type": "number",
+          "description": "Referral bonus percentage associated with the package."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "purchasePrice",
+        "weeklyProfitPercentage",
+        "referralBonusPercentage"
+      ]
+    },
+    "UserPackage": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserPackage",
+      "type": "object",
+      "description": "Represents the association between a user and a purchased package.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user package."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User. (Relationship: User 1:N UserPackage)"
+        },
+        "packageId": {
+          "type": "string",
+          "description": "Reference to the Package. (Relationship: Package 1:N UserPackage)"
+        },
+        "purchaseDate": {
+          "type": "string",
+          "description": "Date the package was purchased.",
+          "format": "date-time"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates whether the package is currently active for the user."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "packageId",
+        "purchaseDate",
+        "isActive"
+      ]
+    },
+    "Wallet": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Wallet",
+      "type": "object",
+      "description": "Represents a user's wallet for storing funds and tracking transactions.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the wallet."
+        },
+        "balance": {
+          "type": "number",
+          "description": "Current balance in the wallet."
+        }
+      },
+      "required": [
+        "id",
+        "balance"
+      ]
+    },
+    "Transaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Transaction",
+      "type": "object",
+      "description": "Represents a transaction in the user's wallet.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the transaction."
+        },
+        "walletId": {
+          "type": "string",
+          "description": "Reference to the Wallet. (Relationship: Wallet 1:N Transaction)"
+        },
+        "transactionType": {
+          "type": "string",
+          "description": "Type of transaction (e.g., purchase, referral, withdrawal, profit)."
+        },
+        "amount": {
+          "type": "number",
+          "description": "Amount of the transaction."
+        },
+        "transactionDate": {
+          "type": "string",
+          "description": "Date and time of the transaction.",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the transaction."
+        },
+        "relatedEntityId": {
+          "type": "string",
+          "description": "Reference to ID of the entity related to this Transaction, e.g. UserPackageId, WithdrawalRequestId. Can be null."
+        }
+      },
+      "required": [
+        "id",
+        "walletId",
+        "transactionType",
+        "amount",
+        "transactionDate"
+      ]
+    },
+    "WithdrawalRequest": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WithdrawalRequest",
+      "type": "object",
+      "description": "Represents a user's request to withdraw funds from their wallet.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the withdrawal request."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who made the withdrawal request. (Relationship: User 1:N WithdrawalRequest)"
+        },
+        "amount": {
+          "type": "number",
+          "description": "Amount requested for withdrawal."
+        },
+        "requestDate": {
+          "type": "string",
+          "description": "Date and time the withdrawal request was submitted.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the withdrawal request (e.g., pending, approved, rejected)."
+        },
+        "adminId": {
+          "type": "string",
+          "description": "Reference to the Admin who approved/rejected the request. (Relationship: User 1:N WithdrawalRequest)"
+        },
+        "transactionId": {
+          "type": "string",
+          "description": "Reference to the Transaction associated with the withdrawal. (Relationship: Transaction 1:1 WithdrawalRequest)"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "amount",
+        "requestDate",
+        "status"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. Includes 'isAdmin' for role-based access control. This enables admin-specific access control within user documents. WalletId is included to link to the user's wallet.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/packages/{packageId}",
+        "definition": {
+          "entityName": "Package",
+          "schema": {
+            "$ref": "#/backend/entities/Package"
+          },
+          "description": "Stores investment packages. Accessible to all users for reading, but only writable by admins.",
+          "params": [
+            {
+              "name": "packageId",
+              "description": "The unique identifier of the package."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/userPackages/{userPackageId}",
+        "definition": {
+          "entityName": "UserPackage",
+          "schema": {
+            "$ref": "#/backend/entities/UserPackage"
+          },
+          "description": "Stores the association between users and purchased packages. Includes 'userId' for direct ownership reference.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "userPackageId",
+              "description": "The unique identifier of the user package."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/wallets/{walletId}",
+        "definition": {
+          "entityName": "Wallet",
+          "schema": {
+            "$ref": "#/backend/entities/Wallet"
+          },
+          "description": "Stores user wallets. Path-based ownership enforced by the /users/{userId} path.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "walletId",
+              "description": "The unique identifier of the wallet."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/wallets/{walletId}/transactions/{transactionId}",
+        "definition": {
+          "entityName": "Transaction",
+          "schema": {
+            "$ref": "#/backend/entities/Transaction"
+          },
+          "description": "Stores transaction history for a user's wallet. Path-based ownership enforced by the /users/{userId}/wallets/{walletId} path.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "walletId",
+              "description": "The unique identifier of the wallet."
+            },
+            {
+              "name": "transactionId",
+              "description": "The unique identifier of the transaction."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/withdrawalRequests/{withdrawalRequestId}",
+        "definition": {
+          "entityName": "WithdrawalRequest",
+          "schema": {
+            "$ref": "#/backend/entities/WithdrawalRequest"
+          },
+          "description": "Stores withdrawal requests made by users. Path-based ownership enforced by the /users/{userId} path. Includes 'userId' for direct ownership reference.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "withdrawalRequestId",
+              "description": "The unique identifier of the withdrawal request."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability for the SmartVest application. It incorporates denormalization to avoid hierarchical authorization dependencies, segregates data based on access needs, and uses consistent access modeling patterns. This structure supports secure `list` operations and maintains data integrity.\n\n**Authorization Independence:**\n\n*   **Users Collection:** The `isAdmin` field is directly embedded within each user document, removing the need to `get()` roles from a separate collection. This allows for atomic operations and simplifies security rules. Withdrawal requests are also linked to the user ID.\n\n*   **Packages Collection:** Packages are managed by admins and are globally accessible to all users, eliminating the need for complex authorization logic. Each package can be independently read.\n\n*   **UserPackages Collection:** Includes the `userId` to directly link the package to a specific user. This avoids needing to traverse the `users` collection to determine package ownership.\n\n*   **Wallets and Transactions:** Wallets are owned by individual users, so the `walletId` and `userId` will facilitate secure access. Transactions are stored under wallets for easy querying.\n\n**Structural Segregation:**\n\n*   **Users Collection:** All user data is stored in a single collection. The `isAdmin` boolean differentiates admin from regular users.\n*   **Packages Collection:** This collection stores all available packages, accessible to all users for reading but only writable by admins.\n\n**Access Modeling:**\n\n*   **Private Data:** User-specific data (wallets, withdrawal requests, transactions) is stored in subcollections under the `/users/{userId}` path, enabling path-based ownership.\n*   **Collaborative Data:** If the application involves collaborative features in future iterations, the membership map (`members: {uid1: 'role', uid2: 'role'}`) approach can be implemented within document for access control.\n\n**QAPs Support:**\n\nThe design supports secure `list` operations (QAPs) through structural segregation and denormalization:\n\n*   Listing packages is secure because the `/packages` collection contains only package data with uniform access requirements.\n*   Listing a user's packages is secure because the `/users/{userId}/userPackages` subcollection is owned by that user, and the security rules can easily filter by the `userId`.\n\nThis structure facilitates simple and robust security rules, making the application more secure and easier to debug."
+  }
+}
