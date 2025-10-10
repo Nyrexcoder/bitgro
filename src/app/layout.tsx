@@ -15,6 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Settings } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
+import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'bitgro',
@@ -42,31 +43,33 @@ export default function RootLayout({
           'font-sans'
         )}
       >
-        <SidebarProvider>
-          <Sidebar>
-            <SidebarHeader>
-              <AppLogo />
-            </SidebarHeader>
-            <SidebarContent>
-              <MainNav />
-            </SidebarContent>
-            <SidebarFooter>
-              <Separator className="my-2" />
-               <Button variant="ghost" className="w-full justify-start gap-2">
-                 <Settings className="h-4 w-4" />
-                 <span>Settings</span>
-               </Button>
-            </SidebarFooter>
-          </Sidebar>
-          <SidebarInset>
-            <main className="flex-1 flex flex-col">
-              {children}
-            </main>
-            <footer className="p-4 text-center text-sm text-muted-foreground">
-              all right reserved by nyrexDeveloper
-            </footer>
-          </SidebarInset>
-        </SidebarProvider>
+        <FirebaseClientProvider>
+          <SidebarProvider>
+            <Sidebar>
+              <SidebarHeader>
+                <AppLogo />
+              </SidebarHeader>
+              <SidebarContent>
+                <MainNav />
+              </SidebarContent>
+              <SidebarFooter>
+                <Separator className="my-2" />
+                 <Button variant="ghost" className="w-full justify-start gap-2">
+                   <Settings className="h-4 w-4" />
+                   <span>Settings</span>
+                 </Button>
+              </SidebarFooter>
+            </Sidebar>
+            <SidebarInset>
+              <main className="flex-1 flex flex-col">
+                {children}
+              </main>
+              <footer className="p-4 text-center text-sm text-muted-foreground">
+                all right reserved by nyrexDeveloper
+              </footer>
+            </SidebarInset>
+          </SidebarProvider>
+        </FirebaseClientProvider>
         <Toaster />
       </body>
     </html>
