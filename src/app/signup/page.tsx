@@ -58,6 +58,9 @@ export default function SignupPage() {
         displayName: `${values.firstName} ${values.lastName}`,
       });
 
+      // Check if the user is the designated admin
+      const isAdmin = values.email === 'admin@bitgro.app';
+
       // Create user document in Firestore
       const userRef = doc(firestore, 'users', user.uid);
       await setDoc(userRef, {
@@ -65,7 +68,7 @@ export default function SignupPage() {
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
-        isAdmin: false, // Default to not admin
+        isAdmin: isAdmin,
       });
 
       toast({
