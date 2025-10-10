@@ -131,9 +131,14 @@ export default function LandingPage() {
                 </p>
             </div>
             <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
-              {packages.map((pkg, index) => (
+              {packages.slice(0, 4).map((pkg, index) => (
                 <PackageCard key={pkg.id} packageInfo={pkg} isPopular={index === 1} />
               ))}
+            </div>
+            <div className="mt-12 text-center">
+                <Button size="lg" variant="outline" asChild>
+                    <Link href="/packages">View All Packages</Link>
+                </Button>
             </div>
           </div>
         </section>
@@ -258,5 +263,7 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    
 
     
