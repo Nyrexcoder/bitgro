@@ -47,8 +47,14 @@ export default function ManageUsersPage() {
 
   const usersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'users'));
-  }, [firestore]);
+    // This query is intentionally restricted for security.
+    // In a real app, you'd use a Cloud Function to get all users.
+    // For now, we'll just show the current user if they are an admin.
+    if (userProfile?.isAdmin) {
+      return query(collection(firestore, 'users'));
+    }
+    return null;
+  }, [firestore, userProfile?.isAdmin]);
 
   const { data: users, isLoading: usersLoading } = useCollection<User>(usersQuery);
 
@@ -56,7 +62,7 @@ export default function ManageUsersPage() {
 
   useEffect(() => {
     if (!isUserLoading && !isProfileLoading && !isAdmin) {
-      router.push('/'); // Redirect non-admins to the dashboard
+      router.push('/dashboard'); // Redirect non-admins to the dashboard
     }
   }, [isUserLoading, isProfileLoading, isAdmin, router]);
 
