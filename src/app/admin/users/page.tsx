@@ -53,18 +53,17 @@ export default function ManageUsersPage() {
 
 
   const isAdmin = userProfile?.isAdmin === true;
+  const isLoading = isAuthUserLoading || isProfileLoading;
 
   useEffect(() => {
-    // Redirect non-admins away from this page
-    if (!isAuthUserLoading && !isProfileLoading && !isAdmin) {
+    // Wait until loading is complete before checking for admin status
+    if (!isLoading && !isAdmin) {
       router.push('/dashboard');
     }
-  }, [isAuthUserLoading, isProfileLoading, isAdmin, router]);
+  }, [isLoading, isAdmin, router]);
 
 
-  const isLoading = isAuthUserLoading || usersLoading;
-
-  if (isLoading && !users.length) {
+  if (isLoading) {
       // Show a loading skeleton while we verify admin status and fetch data
       return (
         <div className="flex-1 flex flex-col">
@@ -117,8 +116,8 @@ export default function ManageUsersPage() {
   }
 
   if (!isAdmin) {
-    // If not an admin, we'll be redirected by the useEffect.
-    // Return null to prevent rendering anything for non-admins.
+    // If not an admin, the useEffect will handle redirection.
+    // Return null or a loading indicator to prevent rendering the page content for non-admins.
     return null;
   }
 
