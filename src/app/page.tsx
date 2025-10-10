@@ -1,11 +1,14 @@
 
 import { AppLogo } from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import Image from 'next/image';
 import { CheckCircle2 } from 'lucide-react';
+import { packages } from '@/lib/data';
+import { PackageCard } from '@/components/packages/package-card';
+
 
 export default function LandingPage() {
   return (
@@ -46,7 +49,7 @@ export default function LandingPage() {
                 <Link href="/signup">Start Investing Now</Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="/packages">Explore Packages</Link>
+                <Link href="#packages">Explore Packages</Link>
               </Button>
             </div>
             <div className="mt-16">
@@ -64,7 +67,7 @@ export default function LandingPage() {
 
         {/* Benefits Section */}
         <section id="benefits" className="py-20 bg-muted">
-          <div className="container">
+          <div className="container text-center">
             <div className="text-center">
               <h2 className="text-3xl font-bold">Why Choose bitgro?</h2>
               <p className="mt-2 text-muted-foreground">
@@ -112,9 +115,24 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Packages Section */}
+        <section id="packages" className="py-20">
+          <div className="container text-center">
+            <h2 className="text-3xl font-bold">Our Investment Packages</h2>
+            <p className="mt-2 max-w-2xl mx-auto text-muted-foreground">
+              Choose the plan that's right for you and start growing your wealth today.
+            </p>
+            <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {packages.map((pkg) => (
+                <PackageCard key={pkg.id} packageInfo={pkg} />
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Testimonials Section */}
-        <section id="testimonials" className="py-20">
-          <div className="container">
+        <section id="testimonials" className="py-20 bg-muted">
+          <div className="container text-center">
             <div className="text-center">
               <h2 className="text-3xl font-bold">Loved by Investors Worldwide</h2>
               <p className="mt-2 text-muted-foreground">
@@ -189,6 +207,40 @@ export default function LandingPage() {
           </div>
         </section>
       </main>
+
+       {/* Footer */}
+      <footer className="border-t">
+        <div className="container py-12">
+          <div className="grid gap-8 md:grid-cols-3">
+            <div className="space-y-2">
+              <AppLogo />
+              <p className="text-sm text-muted-foreground">
+                Smart Investments, Simplified.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 md:col-span-2 gap-8">
+              <div className="space-y-2">
+                <h4 className="font-semibold">Company</h4>
+                <ul className="space-y-1">
+                  <li><Link href="/about" className="text-sm text-muted-foreground hover:text-foreground">About Us</Link></li>
+                  <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link></li>
+                </ul>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-semibold">Legal</h4>
+                <ul className="space-y-1">
+                  <li><Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground">Terms & Conditions</Link></li>
+                  <li><Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground">Privacy Policy</Link></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 border-t pt-8 flex flex-col sm:flex-row justify-between items-center text-sm text-muted-foreground">
+            <p>&copy; {new Date().getFullYear()} bitgro. All rights reserved by nyrexDeveloper.</p>
+             <p className="mt-4 sm:mt-0">Admin Login: admin@bitgro.app / password</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

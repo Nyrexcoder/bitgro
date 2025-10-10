@@ -1,3 +1,4 @@
+
 // This is a new file for the admin user management page.
 
 'use client';
@@ -20,6 +21,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { PlusCircle } from 'lucide-react';
 
 // Define the shape of a user object based on your backend.json
 interface User {
@@ -65,7 +68,11 @@ export default function ManageUsersPage() {
       // or return null to avoid rendering the page content prematurely.
       return (
         <div className="flex-1 flex flex-col">
-          <Header title="Manage Users" />
+          <Header title="Manage Users">
+              <Button>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add User
+              </Button>
+          </Header>
             <div className="flex-1 p-4 md:p-8">
                 <Card>
                     <CardHeader>
@@ -117,7 +124,11 @@ export default function ManageUsersPage() {
 
   return (
     <div className="flex-1 flex flex-col">
-      <Header title="Manage Users" />
+      <Header title="Manage Users">
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" /> Add User
+        </Button>
+      </Header>
       <main className="flex-1 p-4 md:p-8">
         <Card>
           <CardHeader>
