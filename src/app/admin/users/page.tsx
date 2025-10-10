@@ -21,6 +21,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+
 
 interface User {
   id: string;
@@ -39,45 +41,9 @@ function AdminUsersPageSkeleton() {
           </Button>
         </Header>
         <main className="flex-1 p-4 md:p-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>User Administration</CardTitle>
-              <CardDescription>View and manage all users in the system.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead className="hidden sm:table-cell">Email</TableHead>
-                    <TableHead className="hidden md:table-cell">Role</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {[...Array(3)].map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Skeleton className="h-10 w-10 rounded-full" />
-                          <div className="space-y-2">
-                             <Skeleton className="h-4 w-32" />
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-48" /></TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        <Skeleton className="h-6 w-16 rounded-full" />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Skeleton className="h-9 w-20" />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+            <div className="flex items-center justify-center flex-1 h-full">
+                <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
         </main>
       </div>
     );
@@ -162,14 +128,14 @@ export default function ManageUsersPage() {
   const isLoading = isAuthLoading || isProfileLoading;
 
   useEffect(() => {
-    // Only perform actions once all data is loaded.
+    // Wait until loading is fully complete
     if (!isLoading) {
-      // If there's no authenticated user, redirect to login.
+      // If there's no authenticated user, redirect to login
       if (!authUser) {
         router.push('/login');
-      }
-      // If the loaded profile is not an admin, redirect to dashboard.
-      else if (!userProfile?.isAdmin) {
+      } 
+      // After confirming user is loaded and not an admin, redirect
+      else if (userProfile && !userProfile.isAdmin) {
         router.push('/dashboard');
       }
     }
@@ -177,16 +143,15 @@ export default function ManageUsersPage() {
 
 
   // While loading, show the skeleton.
-  if (isLoading) {
+  if (isLoading || !userProfile) {
     return <AdminUsersPageSkeleton />;
   }
 
   // If loading is complete and we have an admin user, show the page.
-  if (userProfile?.isAdmin) {
+  if (userProfile.isAdmin) {
     return <AdminUsersPageContent userProfile={userProfile} users={[userProfile]} />;
   }
 
-  // If loading is complete but the user is not an admin (and redirection is in progress),
-  // continue showing the skeleton to prevent a flash of an empty screen.
+  // If loading is complete but the user is not an admin, show skeleton while redirecting.
   return <AdminUsersPageSkeleton />;
 }

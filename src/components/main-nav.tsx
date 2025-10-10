@@ -60,19 +60,18 @@ interface UserProfile {
 export function MainNav() {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
-  const { user, isUserLoading } = useUser();
+  const { user: authUser, isUserLoading: isAuthLoading } = useUser();
   const firestore = useFirestore();
 
   const userDocRef = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return doc(firestore, 'users', user.uid);
-  }, [firestore, user]);
+    if (!firestore || !authUser) return null;
+    return doc(firestore, 'users', authUser.uid);
+  }, [firestore, authUser]);
 
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userDocRef);
 
-  // Determine if the user is an admin, but only after all data has loaded.
-  const isLoading = isUserLoading || isProfileLoading;
-  const isAdmin = !isLoading && userProfile?.isAdmin === true;
+  const isLoading = isAuthLoading || isProfileLoading;
+  const isAdmin = !isLoading && !!authUser && !!userProfile && userProfile.isAdmin;
 
   const handleLinkClick = () => {
     if (setOpenMobile) {
